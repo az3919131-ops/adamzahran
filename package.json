@@ -1,0 +1,11 @@
+{
+  "name": "ahmed-zahran-dashboard",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/e2e.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^11.1.9"
+  }
+}
