@@ -22,6 +22,11 @@
     description: L("", ""), category: L("", ""),
     url: "https://nourmadinty.netlify.app" });
   window.SEED_SITE_BUILDER = SITE_BUILDER;
+  const PROMPT_STUDIO = () => base({ id: "plt-prompt-studio", tags: ["ai"], status: "live", embed: true,
+    title: L("تصميم وتجربة البرومت", "Prompt Design & Testing"),
+    description: L("تجربة البرومت واختباره وتوفير استهلاك التوكن.", "Try and test prompts and save token usage."),
+    category: L("", ""), url: "https://mujassid-prompt-studio.netlify.app/" });
+  window.SEED_PROMPT_STUDIO = PROMPT_STUDIO;
 
   // Offer cards shown next to the built websites (choose a design / message me).
   const OFFERS = () => [
@@ -165,6 +170,7 @@
           description: L("منصة لإدارة وتحليل أعمال المقاولين.", "A platform for managing and analyzing contractors' work."),
           url: "https://iltizam-najran.netlify.app/", category: L("إدارة وتحليل", "Management & analytics"), status: "live", embed: true }),
         SITE_BUILDER(),
+        PROMPT_STUDIO(),
         ...OFFERS(),
       ],
     },
@@ -208,7 +214,7 @@
   ];
 
   window.SEED = {
-    version: 6,
+    version: 7,
     // Hero numbers. Empty value = calculated from the data; show:false hides the number.
     stats: {
       years: { show: true, value: "15" },

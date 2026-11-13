@@ -77,7 +77,7 @@ await test("WhatsApp link uses international format with prefilled message; mail
 });
 await test("platform / channel / LinkedIn links open in a new tab", async () => {
   const links = await page.$$eval("#sec-platforms .btn-primary, #sec-youtube .btn-primary, #sec-linkedin .btn-primary", (as) => as.map((a) => [a.href, a.target, a.rel]));
-  assert(links.length === 6 && links.every(([, t, r]) => t === "_blank" && r.includes("noopener")), JSON.stringify(links));
+  assert(links.length === 7 && links.every(([, t, r]) => t === "_blank" && r.includes("noopener")), JSON.stringify(links));
   assert(links.some(([h]) => h === "https://iltizam-training.netlify.app/#/home"), "iltizam link");
 });
 await test("websites section renamed; offer cards have design link + WhatsApp/email buttons", async () => {
@@ -89,13 +89,17 @@ await test("websites section renamed; offer cards have design link + WhatsApp/em
   assert(hrefs.filter((h) => h.startsWith("https://wa.me/966565324387?text=")).length === 2, "whatsapp buttons");
   assert(hrefs.filter((h) => h.startsWith("mailto:az3919131@gmail.com")).length === 2, "email buttons");
 });
-await test("real estate platform card replaces the website-design card, above the choose-a-site card", async () => {
+await test("real estate platform card replaces the website-design card, before the choose-a-site card", async () => {
   const titles = await page.$$eval("#sec-platforms .card h3", (h) => h.map((x) => x.textContent.trim()));
   assert(!titles.includes("منصة تصميم المواقع"), "old card must be gone");
   const i = titles.indexOf("منصة التسويق العقاري (نور مدينتي)");
-  assert(i >= 0 && titles[i + 1] === "اختر موقعك المناسب واتصل لتنفيذه", "order " + titles.join(" | "));
+  assert(i >= 0 && i < titles.indexOf("اختر موقعك المناسب واتصل لتنفيذه"), "order " + titles.join(" | "));
   const href = await page.$$eval("#sec-platforms .card", (cs) => cs.find((c) => c.querySelector("h3").textContent.trim() === "منصة التسويق العقاري (نور مدينتي)").querySelector("a.btn-primary").href);
   assert(href === "https://nourmadinty.netlify.app/", href);
+});
+await test("prompt studio platform card: name, description and link", async () => {
+  const card = await page.$$eval("#sec-platforms .card", (cs) => { const c = cs.find((x) => x.querySelector("h3").textContent.trim() === "تصميم وتجربة البرومت"); return c ? [c.textContent, c.querySelector("a.btn-primary").href, c.querySelector("a.btn-primary").target] : null; });
+  assert(card && card[0].includes("توفير استهلاك التوكن") && card[1] === "https://mujassid-prompt-studio.netlify.app/" && card[2] === "_blank", JSON.stringify(card));
 });
 await test("hero: CV button opens the CV site, portrait shown, sites link jumps to the sites section", async () => {
   const cv = await page.$eval(".hero .btn-cv", (a) => [a.href, a.target]);
