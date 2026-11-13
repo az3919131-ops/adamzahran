@@ -301,9 +301,33 @@
   }
 
   const DOCS = {
-    "cert-plc-adv": "jelecom-plc-advanced-letter-2010", "cert-flsmidth": "flsmidth-helwan-2011",
-    "cert-don-bosco": "don-bosco-contactors-2009\ndon-bosco-civil-2008", "cert-software": "cairo-autocad-electrical-2008",
+    "cert-plc-adv": "jelecom-plc-advanced-letter-2010\nidcs-plc-certificate-2010\nidcs-training-letter-2010",
+    "cert-flsmidth": "flsmidth-helwan-2011",
+    "cert-don-bosco": "don-bosco-contactors-2009\ndon-bosco-civil-2008",
+    "cert-software": "cairo-autocad-electrical-2008\ncairo-autocad-2d-2008\ncairo-matlab-simulink-2008",
+    "cert-syndicate": "syndicate-membership-2011",
+    "cert-dist-1": "schneider-distribution-phase1-2019",
+    "cert-fault-2018": "south-fault-location-2018\nsouth-fault-location-2018-b",
+    "cert-supply-rules": "south-supply-rules-2017",
+    "cert-solar": "south-solar-2017",
+    "cert-network-design": "south-network-design-2017",
+    "cert-fault-analysis": "south-fault-analysis-2015\nsouth-fault-analysis-2016",
+    "cert-cables": "south-cables-2015",
+    "cert-meters": "south-meters-2014",
+    "cert-lv-maint": "south-lv-maintenance-2013",
+    "cert-hse-2013": "south-hse-2013",
+    "cert-jelecom-dist": "jelecom-distribution-basic-2013",
+    "cert-plc-basic": "jelecom-plc-basic-2011",
+    "cert-scada": "shroq-scada",
+    "cert-summer": "south-summer-networks-2010\negyptian-transmission-summer-2009",
+    "cert-soft-skills": "zedny-presentation-skills-2010\nzedny-principles-of-sales-2010\nzedny-principles-of-marketing-2010\nauc-english-2007",
   };
+  // notes that said "not attached yet" are replaced once the scans are attached
+  const NEW_NOTES = {
+    "cert-plc-adv": "المرفقات: خطاب إفادة من Jelecom بتاريخ 13/03/2010 (PLC Advanced Course Level-1، من 31/01/2009 إلى 01/03/2009، تقدير جيد جدًا)، وشهادة وخطاب من مركز IDCS / IT Gate Academy (2010).",
+    "cert-software": "المرفقات: شهادات AutoCAD 2009 (Electrical) لمدة 24 ساعة، وAutoCAD (2D) لمدة 27 ساعة، وMatlab 7 (Simulink / SimPowerSystems) لمدة 24 ساعة (يوليو 2008).",
+  };
+  const STALE = /لم يُرفق بعد|غير مرفقة بعد/;
   function docs(c) {
     const sec = (c.sections || []).find((s) => s.type === "certs");
     if (sec) sec.items.forEach((it) => {
@@ -313,8 +337,22 @@
     c.version = 11;
     return c;
   }
+  // version 12: attach every remaining scan to its card (merges with images already attached; nothing is removed)
+  function docs2(c) {
+    const sec = (c.sections || []).find((s) => s.type === "certs");
+    if (sec) sec.items.forEach((it) => {
+      if (DOCS[it.id]) {
+        const have = String(it.images || "").split("\n").map((x) => x.trim()).filter(Boolean);
+        DOCS[it.id].split("\n").forEach((n) => { if (!have.includes(n)) have.push(n); });
+        it.images = have.join("\n");
+      }
+      if (NEW_NOTES[it.id] && (!(it.note && it.note.ar) || STALE.test(it.note.ar))) it.note = L(NEW_NOTES[it.id]);
+    });
+    c.version = 12;
+    return c;
+  }
 
-  window.V10 = { apply, docs, hostOf, CERT_TABS: [
+  window.V10 = { apply, docs, docs2, hostOf, CERT_TABS: [
     { id: "academic", ar: "المؤهلات والخبرة", en: "Qualifications and experience",
       long: L("المؤهلات الأكاديمية، الاعتمادات المهنية، وشهادات الخبرة الرسمية", "Academic qualifications, professional accreditations and official experience certificates") },
     { id: "pm", ar: "الإدارة والسلامة والذكاء الاصطناعي", en: "Management, safety and AI",

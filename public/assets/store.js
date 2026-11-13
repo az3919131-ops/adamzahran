@@ -88,6 +88,7 @@
     if ((out.version || 1) < 9) window.V9.apply(out);
     if ((out.version || 1) < 10) window.V10.apply(out);
     if ((out.version || 1) < 11) window.V10.docs(out);
+    if ((out.version || 1) < 12) window.V10.docs2(out);
     out.stats = { ...seed.stats, ...(out.stats || {}) };
     out.sections.forEach((s) => { s.items = Array.isArray(s.items) ? s.items : []; if (s.visible === undefined) s.visible = true; });
     return out;

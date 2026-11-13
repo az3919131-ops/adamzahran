@@ -291,10 +291,11 @@ await test("CV certificates: four categories with counts, live search across cat
   assert(await page.isVisible("[data-cert-empty]"), "empty state");
   await page.fill("[data-cert-q]", "");
   await page.click("[data-cert-tab=academic]");
-  const nodoc = await page.$$eval("[data-cert=cert-bsc] .cvx-nodoc, [data-cert=cert-syndicate] .cvx-nodoc", (e) => e.length);
-  assert(nodoc === 2, "no fake previews for items without a scan");
+  const nodoc = await page.$$eval("[data-cert=cert-bsc] .cvx-nodoc", (e) => e.length);
+  assert(nodoc === 1, "no fake previews for items without a scan");
+  assert((await page.$$eval("[data-cert=cert-syndicate] .cvx-thumb img", (e) => e.length)) === 1, "syndicate card shows its scan");
   const withDoc = await page.$$eval("[data-cert] .cvx-thumb img", (i) => i.length);
-  assert(withDoc === 8, "only the cards with real scans have previews, got " + withDoc);
+  assert(withDoc === 24, "only the cards with real scans have previews, got " + withDoc);
 });
 await test("CV certificates: 3D tilt and glare react to the pointer (and reset on leave)", async () => {
   const card = await page.$(".cvx-vcard");
@@ -377,7 +378,7 @@ await test("privacy: no ID / iqama numbers, birth date or military remarks in th
     for (const bad of ["2497272811", "1989/01/12", "القوات المسلحة", "الخدمة العسكرية", "خدمة عسكرية"]) assert(!body.includes(bad), f + " contains " + bad);
   }
   const certs = fs.readdirSync("public/assets/certs");
-  assert(certs.every((f) => /\.jpg$/.test(f)) && certs.length === 20, "only JPEG previews: " + certs.join());
+  assert(certs.every((f) => /\.jpg$/.test(f)) && certs.length === 72, "only JPEG previews: " + certs.join());
 });
 await test("CV platforms: contractors platform first, one-click visit link, details dialog still works", async () => {
   const titles = await page.$$eval("#sec-platforms .pf h3", (h) => h.map((x) => x.textContent.trim()));

@@ -198,8 +198,14 @@
     if (!sec) return "";
     const items = sec.items.filter((i) => i.visible !== false);
     const first = tabs()[0];
+    const docCount = items.reduce((n, x) => n + previews(x).length, 0);
     return `<section class="section cvx-certs" id="sec-${esc(sec.id)}"><div class="wrap">
       <header class="head2"><h2>${esc(loc(sec.title))}</h2><p>${esc(T("وثائق مرفقة بعد تغطية أرقام الهوية والبيانات الشخصية في الصور. الأمثلة التطبيقية المذكورة منفصلة عن الخبرة المثبتة.", "Documents attached after painting over ID numbers and personal data in the images. Application examples are kept separate from the documented experience."))}</p></header>
+      <ul class="cvx-proof" aria-label="${esc(T("ملخص الوثائق المرفقة", "Summary of attached documents"))}">
+        <li><b>${docCount}</b><span>${esc(T("وثيقة أصلية مرفقة", "original documents attached"))}</span></li>
+        <li><b>${items.filter((x) => previews(x).length).length}/${items.length}</b><span>${esc(T("شهادة مدعومة بصورة", "items backed by a scan"))}</span></li>
+        <li><b>${tabs().length}</b><span>${esc(T("مسارات: إدارة وقوى وتحكم ومؤهلات", "tracks: management, power, control, qualifications"))}</span></li>
+      </ul>
       <div class="cvx-cfilter no-print" data-cert-filter>
         <label class="cvx-search"><span class="sr-only">${esc(T("ابحث في الشهادات والمهارات", "Search certificates and skills"))}</span>
           <input type="search" data-cert-q placeholder="${esc(T("ابحث في الشهادات والمهارات…", "Search certificates and skills…"))}" autocomplete="off"></label>
