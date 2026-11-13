@@ -205,6 +205,21 @@
     const wa = ct.whatsapp?.visible !== false ? waLink(ct, loc(ct.whatsappMessage)) : "";
     const email = ct.email?.visible !== false ? ct.email?.value || "" : "";
     const stats = computeStats(c);
+    const cv = safeUrl(c.profile.cvUrl);
+    // CV parts (experience, projects, skills, education, courses) sit under one "CV" dropdown in the nav.
+    const CV_TYPES = ["experience", "projects", "skills", "education", "courses"];
+    const cvSecs = secs.filter((x) => CV_TYPES.includes(x.type));
+    const navLink = (x) => `<a href="#sec-${esc(x.id)}">${esc(loc(x.title))}</a>`;
+    let dropDone = false;
+    const navHTML = secs.map((x) => {
+      if (cvSecs.length < 2 || !CV_TYPES.includes(x.type)) return navLink(x);
+      if (dropDone) return "";
+      dropDone = true;
+      return `<div class="navdrop"><button type="button" class="navdrop-btn" aria-expanded="false" aria-controls="cv-menu">${esc(t("navCv"))}<span class="caret" aria-hidden="true"></span></button>
+        <div class="navdrop-menu" id="cv-menu">${cvSecs.map(navLink).join("")}</div></div>`;
+    }).join("");
+    const photo = safeUrl(c.profile.photo);
+    const sitesSec = secs.find((x) => x.type === "platforms");
 
     const allItems = secs.flatMap((s) => s.items.filter((i) => i.visible !== false).map((i) => ({ i, s })));
     const years = [...new Set(allItems.flatMap(({ i }) => itemYears(i)))].sort((a, b) => b - a);
@@ -220,7 +235,7 @@
           <a class="brand" href="#top"><span class="brand-mark">${ICON.bolt}</span><span>${esc(loc(c.profile.name))}</span></a>
           <button class="btn btn-icon nav-toggle" aria-expanded="false" aria-controls="mainnav" aria-label="${esc(t("menu"))}">☰</button>
           <nav id="mainnav" class="mainnav" aria-label="sections">
-            ${secs.map((s) => `<a href="#sec-${esc(s.id)}">${esc(loc(s.title))}</a>`).join("")}
+            ${navHTML}
             ${contactBlock ? `<a href="#sec-contact">${esc(t("nav_contact"))}</a>` : ""}
           </nav>
           <div class="top-actions">
@@ -235,23 +250,31 @@
         <section class="hero" id="top">
           <div class="hero-grid" aria-hidden="true"></div>
           <div class="wrap hero-in">
-            ${safeUrl(c.profile.photo) ? `<img class="avatar" src="${esc(safeUrl(c.profile.photo))}" alt="${esc(loc(c.profile.name))}">` : ""}
-            <p class="eyebrow">${ICON.pin} ${esc(loc(c.profile.location))}</p>
-            <h1>${esc(loc(c.profile.name))}</h1>
-            <p class="role">${esc(loc(c.profile.title))}</p>
-            ${loc(c.profile.experienceSummary) ? `<p class="summary">${esc(loc(c.profile.experienceSummary))}</p>` : ""}
-            <p class="bio">${esc(loc(c.profile.bio))}</p>
-            <div class="hero-actions">
-              ${wa ? `<a class="btn btn-wa" href="${esc(wa)}" target="_blank" rel="noopener noreferrer">${ICON.wa}<span>${esc(t("whatsapp"))}</span></a>` : ""}
-              ${email ? `<a class="btn btn-gold" href="mailto:${esc(email)}">${ICON.mail}<span>${esc(t("emailMe"))}</span></a>
-                <button class="btn btn-ghost-light" data-act="copy-email" data-email="${esc(email)}">${ICON.copy}<span>${esc(t("copyEmail"))}</span></button>` : ""}
+            <div class="hero-text">
+              <p class="eyebrow">${ICON.pin} ${esc(loc(c.profile.location))}</p>
+              <h1>${esc(loc(c.profile.name))}</h1>
+              <p class="role">${esc(loc(c.profile.title))}</p>
+              ${loc(c.profile.experienceSummary) ? `<p class="summary">${esc(loc(c.profile.experienceSummary))}</p>` : ""}
+              <p class="bio">${esc(loc(c.profile.bio))}</p>
+              <div class="hero-actions">
+                ${cv ? `<a class="btn btn-cv" href="${esc(cv)}" target="_blank" rel="noopener noreferrer">${ICON.file}<span>${esc(t("cv"))}</span></a>` : ""}
+                ${wa ? `<a class="btn btn-wa" href="${esc(wa)}" target="_blank" rel="noopener noreferrer">${ICON.wa}<span>${esc(t("whatsapp"))}</span></a>` : ""}
+                ${email ? `<a class="btn btn-gold" href="mailto:${esc(email)}">${ICON.mail}<span>${esc(t("emailMe"))}</span></a>
+                  <button class="btn btn-ghost-light" data-act="copy-email" data-email="${esc(email)}">${ICON.copy}<span>${esc(t("copyEmail"))}</span></button>` : ""}
+              </div>
             </div>
+            ${photo || sitesSec ? `<div class="hero-side">
+              ${photo ? `<figure class="portrait"><img src="${esc(photo)}" alt="${esc(loc(c.profile.name))}"></figure>` : ""}
+              ${sitesSec ? `<a class="sites-link" href="#sec-${esc(sitesSec.id)}">${ICON.globe}<span>${esc(t("browseSites"))}</span></a>` : ""}
+            </div>` : ""}
           </div>
+          ${stats.length ? `<div class="busbar wrap" aria-label="stats">
+            <div class="bus" aria-hidden="true"></div>
+            <div class="feeders">
+              ${stats.map((s) => `<div class="stat"><i class="brk" aria-hidden="true"></i><strong>${s.v}</strong><span>${esc(t(s.k))}</span></div>`).join("")}
+            </div>
+            <p class="stat-note">${esc(t("stat_note"))}</p></div>` : ""}
         </section>
-
-        ${stats.length ? `<section class="stats wrap" aria-label="stats">
-          ${stats.map((s) => `<div class="stat"><strong>${s.v}</strong><span>${esc(t(s.k))}</span></div>`).join("")}
-          <p class="stat-note">${esc(t("stat_note"))}</p></section>` : ""}
 
         <section class="toolbar wrap no-print" aria-label="filters">
           <input type="search" id="q" placeholder="${esc(t("search"))}" aria-label="${esc(t("search"))}">
@@ -268,12 +291,12 @@
           const items = s.items.filter((i) => i.visible !== false);
           const fn = R[s.type] || R.pages;
           const body = items.map((i) => fn(i, s, c)).join("");
-          return `<section class="section wrap" id="sec-${esc(s.id)}" data-section-block="${esc(s.id)}">
+          return `<section class="section sec-${esc(s.type)}" id="sec-${esc(s.id)}" data-section-block="${esc(s.id)}"><div class="wrap">
             <div class="section-head"><h2>${esc(loc(s.title))}</h2>
               <button class="btn btn-icon btn-small no-print" data-act="copy-link" data-id="sec-${esc(s.id)}" title="${esc(t("copyLink"))}" aria-label="${esc(t("copyLink"))}">${ICON.link}</button></div>
             ${s.type === "future" ? `<p class="note">${esc(t("planNote"))}</p>` : ""}
             ${s.type === "experience" ? `<div class="timeline">${body}</div>` : `<div class="grid grid-${esc(s.type)}">${body}</div>`}
-          </section>`;
+          </div></section>`;
         }).join("")}
 
         ${contactBlock ? `<section class="section wrap contact" id="sec-contact">
@@ -328,6 +351,15 @@
       const open = nav.classList.toggle("open");
       e.currentTarget.setAttribute("aria-expanded", String(open));
     });
+    const drop = root.querySelector(".navdrop");
+    if (drop) {
+      const dbtn = drop.querySelector(".navdrop-btn");
+      const setOpen = (v) => { drop.classList.toggle("open", v); dbtn.setAttribute("aria-expanded", String(v)); };
+      dbtn.addEventListener("click", (e) => { e.stopPropagation(); setOpen(!drop.classList.contains("open")); });
+      drop.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
+      drop.addEventListener("keydown", (e) => { if (e.key === "Escape") { setOpen(false); dbtn.focus(); } });
+      document.onclick = (e) => { if (!e.target.closest(".navdrop")) setOpen(false); };
+    }
     root.querySelectorAll("#mainnav a").forEach((a) => a.addEventListener("click", () => root.querySelector("#mainnav").classList.remove("open")));
 
     root.onclick = async (e) => {

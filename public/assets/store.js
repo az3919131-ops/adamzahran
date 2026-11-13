@@ -32,6 +32,11 @@
       }
       out.version = 2;
     }
+    if ((out.version || 1) < 3) {
+      if (!out.profile.photo) out.profile.photo = seed.profile.photo;
+      if (!out.profile.cvUrl) out.profile.cvUrl = seed.profile.cvUrl;
+      out.version = 3;
+    }
     out.sections.forEach((s) => { s.items = Array.isArray(s.items) ? s.items : []; if (s.visible === undefined) s.visible = true; });
     return out;
   }

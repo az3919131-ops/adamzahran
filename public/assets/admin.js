@@ -206,12 +206,14 @@
         ${lInput("experienceSummary", pr.experienceSummary, "ملخص الخبرة", true, 2)}
         ${lInput("bio", pr.bio, "النبذة المهنية", true, 6)}
         ${fieldHTML({ key: "photo", kind: "image", label: "الصورة الشخصية (اختياري)" }, pr.photo)}
+        ${fieldHTML({ key: "cvUrl", kind: "url", label: "رابط السيرة الذاتية (يظهر كزر في أعلى الصفحة)" }, pr.cvUrl)}
       </form>`;
     const f = p.querySelector("#f-profile");
     bindUploads(f);
     f.addEventListener("input", () => {
       for (const k of ["name", "title", "location", "experienceSummary", "bio"]) pr[k] = { ar: f[`${k}.ar`].value, en: f[`${k}.en`].value };
       pr.photo = f.photo.value.trim();
+      pr.cvUrl = f.cvUrl.value.trim();
       changed(false);
     });
   }

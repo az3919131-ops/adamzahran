@@ -201,7 +201,7 @@
   ];
 
   window.SEED = {
-    version: 2,
+    version: 3,
     profile: {
       name: L("م. أحمد زهران", "Eng. Ahmed Zahran"),
       title: L("مدير مشاريع ومهندس قوى كهربائية", "Project Manager & Electrical Power Engineer"),
@@ -214,7 +214,8 @@
         "مدير مشاريع ومهندس قوى كهربائية ذو خبرة تتجاوز 12 عامًا في تنفيذ مشاريع البنية التحتية والتوزيع الكهربائي، وإدارة العقود والميزانيات والمقاولين والاستشاريين، مع خبرة في اختبار وصيانة شبكات الجهد المتوسط والمنخفض والمحولات، وتحليل البيانات وإعداد التقارير الإدارية والفنية، وتصميم منصات ويب تخدم العمل الهندسي والمجتمع.",
         "Project manager and electrical power engineer with more than 12 years of experience delivering electrical infrastructure and distribution projects and managing contracts, budgets, contractors and consultants, with hands-on experience testing and maintaining medium- and low-voltage networks and transformers, analyzing data and preparing management and technical reports, and building web platforms that serve engineering work and the community."
       ),
-      photo: "",
+      photo: "https://ahmedzahran12.netlify.app/ahmed.jpg",
+      cvUrl: "https://ahmedzahran12.netlify.app/",
     },
     contact: {
       name: { value: "م. أحمد زهران", visible: true },

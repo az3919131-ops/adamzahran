@@ -88,6 +88,25 @@ await test("websites section renamed; offer cards have design link + WhatsApp/em
   assert(hrefs.filter((h) => h.startsWith("https://wa.me/966565324387?text=")).length === 2, "whatsapp buttons");
   assert(hrefs.filter((h) => h.startsWith("mailto:az3919131@gmail.com")).length === 2, "email buttons");
 });
+await test("hero: CV button opens the CV site, portrait shown, sites link jumps to the sites section", async () => {
+  const cv = await page.$eval(".hero .btn-cv", (a) => [a.href, a.target]);
+  assert(cv[0] === "https://ahmedzahran12.netlify.app/" && cv[1] === "_blank", "cv link " + cv);
+  assert((await page.getAttribute(".hero .portrait img", "src")) === "https://ahmedzahran12.netlify.app/ahmed.jpg", "portrait");
+  const sl = await page.$eval(".hero .sites-link", (a) => [a.getAttribute("href"), a.textContent.trim()]);
+  assert(sl[0] === "#sec-platforms" && sl[1] === "تصفح مواقع ومنصات التزام", "sites link " + sl);
+});
+await test("nav: CV sections live in one dropdown titled السيرة الذاتية", async () => {
+  assert((await page.textContent(".navdrop-btn")).trim() === "السيرة الذاتية", "dropdown title");
+  assert(!(await page.isVisible("#cv-menu")), "closed by default");
+  await page.click(".navdrop-btn");
+  const items = await page.$$eval("#cv-menu a", (as) => as.map((a) => a.getAttribute("href")));
+  assert(items.join() === "#sec-experience,#sec-projects,#sec-skills,#sec-education,#sec-courses", items.join());
+  assert(await page.isVisible("#cv-menu a"), "opens");
+  const top = await page.$$eval("#mainnav > a", (as) => as.map((a) => a.getAttribute("href")));
+  assert(!top.includes("#sec-skills") && top.includes("#sec-platforms"), "top-level links " + top);
+  await page.click("#cv-menu a >> nth=2");
+  assert(!(await page.isVisible("#cv-menu")), "closes after choosing");
+});
 await test("search + filters (text, year, tag, clear)", async () => {
   await page.fill("#q", "SCADA");
   let vis = await page.$$eval("[data-filter-item]:not([hidden])", (e) => e.length);
@@ -327,7 +346,7 @@ await test("mobile layout: no horizontal overflow, menu toggle works", async () 
   const over = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   assert(!over, "horizontal overflow");
   await page.click(".nav-toggle");
-  assert(await page.isVisible("#mainnav a"), "menu opens");
+  assert(await page.isVisible("#mainnav > a"), "menu opens");
   await page.setViewportSize({ width: 1280, height: 800 });
 });
 await test("no JavaScript errors in console", async () => { assert(errors.length === 0, errors.join(" | ")); });
