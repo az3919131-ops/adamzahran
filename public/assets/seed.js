@@ -255,4 +255,5 @@
   };
   window.V9.apply(window.SEED);
   window.V10.apply(window.SEED);
+  window.V10.docs(window.SEED);
 })();

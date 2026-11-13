@@ -294,7 +294,7 @@ await test("CV certificates: four categories with counts, live search across cat
   const nodoc = await page.$$eval("[data-cert=cert-bsc] .cvx-nodoc, [data-cert=cert-syndicate] .cvx-nodoc", (e) => e.length);
   assert(nodoc === 2, "no fake previews for items without a scan");
   const withDoc = await page.$$eval("[data-cert] .cvx-thumb img", (i) => i.length);
-  assert(withDoc === 4, "only the four real documents have previews, got " + withDoc);
+  assert(withDoc === 8, "only the cards with real scans have previews, got " + withDoc);
 });
 await test("CV certificates: 3D tilt and glare react to the pointer (and reset on leave)", async () => {
   const card = await page.$(".cvx-vcard");
@@ -308,6 +308,28 @@ await test("CV certificates: 3D tilt and glare react to the pointer (and reset o
   await page.mouse.move(2, 2);
   await page.waitForTimeout(150);
   assert((await card.evaluate((e) => e.style.getPropertyValue("--ry"))) === "0deg", "reset on leave");
+});
+await test("CV certificates: new scans are attached to their cards, upright and loading", async () => {
+  const want = { "cert-don-bosco": 2, "cert-flsmidth": 1, "cert-plc-adv": 1, "cert-software": 1 };
+  const got = await page.$$eval("[data-cert]", (cs) => Object.fromEntries(cs.filter((c) => c.querySelector(".cvx-thumb img")).map((c) => [c.dataset.cert, c.querySelector(".cvx-thumb img").getAttribute("src")])));
+  for (const id of Object.keys(want)) assert(got[id] && got[id].startsWith("assets/certs/"), id + " has a preview");
+  await page.click("[data-cert-tab=control]");
+  await page.click("[data-cert=cert-don-bosco] .cvx-thumb");
+  await page.waitForSelector("#cert-dlg[open]");
+  assert((await page.$$("#cert-dlg [data-img]")).length === 2, "two Don Bosco certificates in one viewer");
+  const dims = await page.$eval("#cert-dlg [data-zoom-img]", async (i) => { await i.decode().catch(() => {}); return [i.naturalWidth, i.naturalHeight]; });
+  assert(dims[0] > dims[1], "landscape and upright: " + dims.join("x"));
+  await page.click("#cert-dlg [data-img='1']");
+  const d2 = await page.$eval("#cert-dlg [data-zoom-img]", async (i) => { await i.decode().catch(() => {}); return [i.naturalWidth, i.naturalHeight]; });
+  assert(d2[0] > d2[1], "the second certificate was rotated upright: " + d2.join("x"));
+  assert((await page.textContent("#cert-dlg")).includes("Control by Contactors"), "note names the attached documents");
+  await page.keyboard.press("Escape");
+  await page.click("[data-cert=cert-plc-adv] .cvx-thumb");
+  await page.waitForSelector("#cert-dlg[open]");
+  const d3 = await page.$eval("#cert-dlg [data-zoom-img]", async (i) => { await i.decode().catch(() => {}); return [i.naturalWidth, i.naturalHeight]; });
+  assert(d3[1] > d3[0], "the Jelecom letter is portrait and upright: " + d3.join("x"));
+  await page.keyboard.press("Escape");
+  await page.click("[data-cert-tab=academic]");
 });
 await test("CV certificates: viewer shows the covered image, zooms, navigates, closes with Escape and returns focus", async () => {
   await page.click("[data-cert-tab=pm]");
@@ -355,7 +377,7 @@ await test("privacy: no ID / iqama numbers, birth date or military remarks in th
     for (const bad of ["2497272811", "1989/01/12", "القوات المسلحة", "الخدمة العسكرية", "خدمة عسكرية"]) assert(!body.includes(bad), f + " contains " + bad);
   }
   const certs = fs.readdirSync("public/assets/certs");
-  assert(certs.every((f) => /\.jpg$/.test(f)) && certs.length === 10, "only redacted JPEG previews: " + certs.join());
+  assert(certs.every((f) => /\.jpg$/.test(f)) && certs.length === 20, "only JPEG previews: " + certs.join());
 });
 await test("CV platforms: contractors platform first, one-click visit link, details dialog still works", async () => {
   const titles = await page.$$eval("#sec-platforms .pf h3", (h) => h.map((x) => x.textContent.trim()));

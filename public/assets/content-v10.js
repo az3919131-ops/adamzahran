@@ -192,23 +192,23 @@
 
     ["cert-flsmidth", "control", "برنامج FLSmidth Helwan Cement Institute Training Program", "FLSmidth Helwan Cement Institute Training Program",
       "جامعة حلوان بالتعاون مع شركة FLSmidth الدنماركية", "2011", "شهادة إتمام برنامج تدريبي صناعي", "", "", "",
-      "يعزز فهم النظم الكهربائية وأنظمة التحكم في المشاريع الصناعية الكبرى.", "تنسيق متطلبات القوى والتحكم في خطوط الإنتاج والمحطات.", ""],
+      "يعزز فهم النظم الكهربائية وأنظمة التحكم في المشاريع الصناعية الكبرى.", "تنسيق متطلبات القوى والتحكم في خطوط الإنتاج والمحطات.", "flsmidth-helwan-2011"],
     ["cert-plc-basic", "control", "دورة PLC Applications Basic Training", "PLC Applications Basic Training",
       "كلية الهندسة بجامعة عين شمس بالتعاون مع Jelecom", "17/08/2011 إلى 28/08/2011", "شهادة إتمام برنامج تدريبي", "التقدير: Very Good (جيد جدًا)", "", "",
       "يدعم فهم المنطق البرمجي لدوائر التحكم الآلي واللوحات الذكية.", "مراجعة مخططات الإشارات والتحكم في لوحات التشغيل.", ""],
     ["cert-plc-adv", "control", "دورات التحكم المنطقي المبرمج والتدريب الصناعي (PLC Advanced Level-1 وIDCS Industrial Control)", "PLC and industrial training courses (PLC Advanced Level-1 and IDCS Industrial Control)",
       "شركة Jelecom (يناير إلى مارس 2009) — مركز التصميمات الصناعية وأنظمة التحكم IDCS وIT Gate Academy (أغسطس 2010، مع تدريب عملي بشركات PLC-EHA والحلول الصناعية وورش CNC)", "2009 و2010", "شهادات إتمام دورات تدريبية وعملية", "التقدير: جيد جدًا", "", "",
-      "يربط بين التصميم النظري والتطبيق العملي لدوائر القوى والتحكم.", "الإشراف على فحص لوحات التحكم والتشغيل قبل الاستلام.", ""],
+      "يربط بين التصميم النظري والتطبيق العملي لدوائر القوى والتحكم.", "الإشراف على فحص لوحات التحكم والتشغيل قبل الاستلام.", "jelecom-plc-advanced-letter-2010"],
     ["cert-scada", "control", "دورة بناء أنظمة المراقبة والتحكم SCADA", "Building SCADA monitoring and control systems course",
       "Shrooq Training Courses (مشروع أفضل خريج)", "", "شهادة إتمام دورة تدريبية (Certification of Completion)", "", "", "Hardware Configuration\nDatabase Overview\nGraphics Creation\nAlarms & Real-time Trending\nPLC Data Transfer",
       "يدعم فهم منظومات المراقبة والتحكم عن بُعد (SCADA) المرتبطة بشبكات الكهرباء.", "فهم متطلبات ربط الوحدات الحلقية والمحطات بنظام المراقبة المركزي.", ""],
     ["cert-don-bosco", "control", "دبلومتان فنيتان من معهد السالزيان الإيطالي «دون بوسكو» (موثقتان من القنصلية الإيطالية بالقاهرة)", "Two technical diplomas from the Italian Salesian Institute \"Don Bosco\" (certified by the Italian Consulate in Cairo)",
       "معهد السالزيان الإيطالي «دون بوسكو»", "26/08/2008 إلى 20/10/2008 — 19/08/2009 إلى 20/11/2009", "شهادتا إتمام تدريب فني عملي مكثف",
       "التركيبات الكهربائية المدنية (60 ساعة): ممتاز — كهرباء تحكم آلي بالكونتاكتورات (90 ساعة): مقبول", "", "",
-      "يمنح مدير المشروع معرفة عملية دقيقة بأصول التركيبات ودوائر الكنترول التقليدية.", "فحص جودة التوصيلات الداخلية للوحات الكهربائية بالموقع.", ""],
+      "يمنح مدير المشروع معرفة عملية دقيقة بأصول التركيبات ودوائر الكنترول التقليدية.", "فحص جودة التوصيلات الداخلية للوحات الكهربائية بالموقع.", "don-bosco-contactors-2009\ndon-bosco-civil-2008"],
     ["cert-software", "control", "حزمة البرمجيات الهندسية بجامعة القاهرة (AutoCAD Electrical 2009، AutoCAD 2D، وMatlab 7 Simulink / SimPowerSystems)", "Engineering software package, Cairo University (AutoCAD Electrical 2009, AutoCAD 2D, Matlab 7 Simulink / SimPowerSystems)",
       "كلية الهندسة — جامعة القاهرة (معمل حاسبات قسم القوى والآلات الكهربية)", "يوليو 2008", "3 شهادات حضور دورات تدريبية هندسية", "75 ساعة تدريبية", "", "AutoCAD Electrical\nAutoCAD 2D\nMatlab Simulink / SimPowerSystems",
-      "يدعم قراءة ومراجعة وتعديل المخططات التنفيذية الكهربية (Shop Drawings & As-Built) ومحاكاة الشبكات.", "مطابقة مخططات مسارات الكابلات على AutoCAD مع الواقع الميداني قبل الاعتماد.", ""],
+      "يدعم قراءة ومراجعة وتعديل المخططات التنفيذية الكهربية (Shop Drawings & As-Built) ومحاكاة الشبكات.", "مطابقة مخططات مسارات الكابلات على AutoCAD مع الواقع الميداني قبل الاعتماد.", "cairo-autocad-electrical-2008"],
     ["cert-summer", "control", "شهادتا التدريب الصيفي الميداني في قطاعات النقل والتوزيع", "Two field summer training certificates in transmission and distribution",
       "الشركة المصرية لنقل الكهرباء — مركز تدريب الشبكات بحلوان (يوليو 2009) وشركة جنوب القاهرة لتوزيع الكهرباء (أغسطس 2010)", "2009 و2010", "شهادتا اجتياز تدريب ميداني", "تقدير شبكات التوزيع: 85%", "", "",
       "تأسيس مبكر داخل محطات المحولات وشبكات التوزيع.", "فهم الربط بين شبكات النقل ومحطات التوزيع الفرعية.", ""],
@@ -219,6 +219,10 @@
   ];
 
   const CERT_NOTES = {
+    "cert-plc-adv": "المرفق خطاب إفادة من Jelecom بتاريخ 13/03/2010: حضور دورة PLC Advanced Course (Level-1) من 31/01/2009 إلى 01/03/2009 بتقدير جيد جدًا. لم يُرفق بعد مستند مركز IDCS.",
+    "cert-flsmidth": "الشهادة موقعة من رئيس جامعة حلوان ونائب رئيس FLSmidth، وتحمل عبارة «Year 2011».",
+    "cert-don-bosco": "المرفقان: شهادة «Control by Contactors» (19/08/2009 – 20/11/2009، 90 ساعة، تقدير Pass) وشهادة «Electricity for Civil Installations» (26/08/2008 – 20/10/2008، 60 ساعة، تقدير Excellent). كلتاهما مصدّقة من قنصلية السفارة الإيطالية بالقاهرة.",
+    "cert-software": "المرفق شهادة AutoCAD 2009 (Electrical) لمدة 24 ساعة (يوليو 2008). بقية شهادات الحزمة غير مرفقة بعد.",
     "cert-soft-skills": "تشمل: سلسلة محاضرات مؤسسة «زدني» وجمعية رابعة (يوليو 2010)، وشهادة تقدير كمدرب من طلاب مشروع نورماندي 2، والرخصة الدولية لقيادة الحاسب ICDL (يونسكو 2007 ومركز KIT)، ودورة اللغة الإنجليزية بالجامعة الأمريكية بالقاهرة AUC (سبتمبر 2007).",
   };
 
@@ -296,7 +300,21 @@
     return c;
   }
 
-  window.V10 = { apply, hostOf, CERT_TABS: [
+  const DOCS = {
+    "cert-plc-adv": "jelecom-plc-advanced-letter-2010", "cert-flsmidth": "flsmidth-helwan-2011",
+    "cert-don-bosco": "don-bosco-contactors-2009\ndon-bosco-civil-2008", "cert-software": "cairo-autocad-electrical-2008",
+  };
+  function docs(c) {
+    const sec = (c.sections || []).find((s) => s.type === "certs");
+    if (sec) sec.items.forEach((it) => {
+      if (DOCS[it.id] && !String(it.images || "").trim()) it.images = DOCS[it.id];
+      if (CERT_NOTES[it.id] && !(it.note && (it.note.ar || it.note.en))) it.note = L(CERT_NOTES[it.id]);
+    });
+    c.version = 11;
+    return c;
+  }
+
+  window.V10 = { apply, docs, hostOf, CERT_TABS: [
     { id: "academic", ar: "المؤهلات والخبرة", en: "Qualifications and experience",
       long: L("المؤهلات الأكاديمية، الاعتمادات المهنية، وشهادات الخبرة الرسمية", "Academic qualifications, professional accreditations and official experience certificates") },
     { id: "pm", ar: "الإدارة والسلامة والذكاء الاصطناعي", en: "Management, safety and AI",
