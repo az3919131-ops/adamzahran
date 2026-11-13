@@ -77,7 +77,7 @@ await test("WhatsApp link uses international format with prefilled message; mail
 });
 await test("platform / channel / LinkedIn links open in a new tab", async () => {
   const links = await page.$$eval("#sec-platforms .btn-primary, #sec-youtube .btn-primary, #sec-linkedin .btn-primary", (as) => as.map((a) => [a.href, a.target, a.rel]));
-  assert(links.length === 5 && links.every(([, t, r]) => t === "_blank" && r.includes("noopener")), JSON.stringify(links));
+  assert(links.length === 6 && links.every(([, t, r]) => t === "_blank" && r.includes("noopener")), JSON.stringify(links));
   assert(links.some(([h]) => h === "https://iltizam-training.netlify.app/#/home"), "iltizam link");
 });
 await test("websites section renamed; offer cards have design link + WhatsApp/email buttons", async () => {
@@ -88,6 +88,13 @@ await test("websites section renamed; offer cards have design link + WhatsApp/em
   assert(hrefs.includes("https://21st.dev/?q=%E2%80%A2+Radial+Orbital+Timeline&qs=bookmarks"), "21st.dev link");
   assert(hrefs.filter((h) => h.startsWith("https://wa.me/966565324387?text=")).length === 2, "whatsapp buttons");
   assert(hrefs.filter((h) => h.startsWith("mailto:az3919131@gmail.com")).length === 2, "email buttons");
+});
+await test("منصة تصميم المواقع card sits above the choose-a-site card, with its link", async () => {
+  const titles = await page.$$eval("#sec-platforms .card h3", (h) => h.map((x) => x.textContent.trim()));
+  const i = titles.indexOf("منصة تصميم المواقع");
+  assert(i >= 0 && titles[i + 1] === "اختر موقعك المناسب واتصل لتنفيذه", "order " + titles.join(" | "));
+  const href = await page.$$eval("#sec-platforms .card", (cs) => cs.find((c) => c.querySelector("h3").textContent.trim() === "منصة تصميم المواقع").querySelector("a.btn-primary").href);
+  assert(href === "https://eltezam-platform.netlify.app/", href);
 });
 await test("hero: CV button opens the CV site, portrait shown, sites link jumps to the sites section", async () => {
   const cv = await page.$eval(".hero .btn-cv", (a) => [a.href, a.target]);

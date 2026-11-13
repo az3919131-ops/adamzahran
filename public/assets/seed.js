@@ -17,6 +17,12 @@
 
   const base = (extra) => ({ visible: true, featured: false, tags: [], verified: true, ...extra });
 
+  const SITE_BUILDER = () => base({ id: "plt-site-builder", tags: ["prog"], status: "live", embed: true,
+    title: L("منصة تصميم المواقع", "Website Design Platform"),
+    description: L("", ""), category: L("", ""),
+    url: "https://eltezam-platform.netlify.app/" });
+  window.SEED_SITE_BUILDER = SITE_BUILDER;
+
   // Offer cards shown next to the built websites (choose a design / message me).
   const OFFERS = () => [
     base({ id: "plt-offer-choose", tags: ["prog"], status: "none", embed: false, cta: true,
@@ -158,6 +164,7 @@
           title: L("منصة التزام لإدارة وتحليل أعمال المقاولين", "Iltizam Contractor Management & Analytics Platform"),
           description: L("منصة لإدارة وتحليل أعمال المقاولين.", "A platform for managing and analyzing contractors' work."),
           url: "https://iltizam-najran.netlify.app/", category: L("إدارة وتحليل", "Management & analytics"), status: "live", embed: true }),
+        SITE_BUILDER(),
         ...OFFERS(),
       ],
     },
@@ -201,7 +208,7 @@
   ];
 
   window.SEED = {
-    version: 4,
+    version: 5,
     // Hero numbers. Empty value = calculated from the data; show:false hides the number.
     stats: {
       years: { show: true, value: "15" },

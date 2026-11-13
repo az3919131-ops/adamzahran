@@ -46,6 +46,14 @@
       out.stats = clone(seed.stats);
       out.version = 4;
     }
+    if ((out.version || 1) < 5) {
+      const pl = out.sections.find((s) => s.id === "platforms");
+      if (pl && !pl.items.some((i) => i.id === "plt-site-builder" || i.url === "https://eltezam-platform.netlify.app/")) {
+        const at = pl.items.findIndex((i) => i.id === "plt-offer-choose");
+        pl.items.splice(at < 0 ? pl.items.length : at, 0, window.SEED_SITE_BUILDER());
+      }
+      out.version = 5;
+    }
     out.stats = { ...seed.stats, ...(out.stats || {}) };
     out.sections.forEach((s) => { s.items = Array.isArray(s.items) ? s.items : []; if (s.visible === undefined) s.visible = true; });
     return out;
