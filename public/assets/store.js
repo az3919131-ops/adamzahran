@@ -76,6 +76,15 @@
       }
       out.version = 7;
     }
+    if ((out.version || 1) < 8) {
+      const pl = out.sections.find((s) => s.id === "platforms");
+      const fresh = window.SEED_SECURITY_GATE();
+      if (pl && !pl.items.some((i) => i.id === fresh.id || i.url === fresh.url)) {
+        const at = pl.items.findIndex((i) => i.id === "plt-offer-choose");
+        pl.items.splice(at < 0 ? pl.items.length : at, 0, fresh);
+      }
+      out.version = 8;
+    }
     out.stats = { ...seed.stats, ...(out.stats || {}) };
     out.sections.forEach((s) => { s.items = Array.isArray(s.items) ? s.items : []; if (s.visible === undefined) s.visible = true; });
     return out;

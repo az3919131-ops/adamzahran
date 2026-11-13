@@ -77,7 +77,7 @@ await test("WhatsApp link uses international format with prefilled message; mail
 });
 await test("platform / channel / LinkedIn links open in a new tab", async () => {
   const links = await page.$$eval("#sec-platforms .btn-primary, #sec-youtube .btn-primary, #sec-linkedin .btn-primary", (as) => as.map((a) => [a.href, a.target, a.rel]));
-  assert(links.length === 7 && links.every(([, t, r]) => t === "_blank" && r.includes("noopener")), JSON.stringify(links));
+  assert(links.length === 8 && links.every(([, t, r]) => t === "_blank" && r.includes("noopener")), JSON.stringify(links));
   assert(links.some(([h]) => h === "https://iltizam-training.netlify.app/#/home"), "iltizam link");
 });
 await test("websites section renamed; offer cards have design link + WhatsApp/email buttons", async () => {
@@ -100,6 +100,10 @@ await test("real estate platform card replaces the website-design card, before t
 await test("prompt studio platform card: name, description and link", async () => {
   const card = await page.$$eval("#sec-platforms .card", (cs) => { const c = cs.find((x) => x.querySelector("h3").textContent.trim() === "تصميم وتجربة البرومت"); return c ? [c.textContent, c.querySelector("a.btn-primary").href, c.querySelector("a.btn-primary").target] : null; });
   assert(card && card[0].includes("توفير استهلاك التوكن") && card[1] === "https://mujassid-prompt-studio.netlify.app/" && card[2] === "_blank", JSON.stringify(card));
+});
+await test("security gate platform card: name, description and link", async () => {
+  const card = await page.$$eval("#sec-platforms .card", (cs) => { const c = cs.find((x) => x.querySelector("h3").textContent.trim() === "تصميم بوابة أمنية للشركات"); return c ? [c.textContent, c.querySelector("a.btn-primary").href, c.querySelector("a.btn-primary").target] : null; });
+  assert(card && card[0].includes("إبلاغ مدير المكان بوجود زائرين") && card[1] === "https://securitynmwabran.netlify.app/" && card[2] === "_blank", JSON.stringify(card));
 });
 await test("hero: CV button opens the CV site, portrait shown, sites link jumps to the sites section", async () => {
   const cv = await page.$eval(".hero .btn-cv", (a) => [a.href, a.target]);

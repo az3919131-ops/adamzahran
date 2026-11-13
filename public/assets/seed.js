@@ -27,6 +27,11 @@
     description: L("تجربة البرومت واختباره وتوفير استهلاك التوكن.", "Try and test prompts and save token usage."),
     category: L("", ""), url: "https://mujassid-prompt-studio.netlify.app/" });
   window.SEED_PROMPT_STUDIO = PROMPT_STUDIO;
+  const SECURITY_GATE = () => base({ id: "plt-security-gate", tags: ["prog"], status: "live", embed: true,
+    title: L("تصميم بوابة أمنية للشركات", "Security Gate Design for Companies"),
+    description: L("إبلاغ مدير المكان بوجود زائرين.", "Notifies the site manager when visitors arrive."),
+    category: L("", ""), url: "https://securitynmwabran.netlify.app/" });
+  window.SEED_SECURITY_GATE = SECURITY_GATE;
 
   // Offer cards shown next to the built websites (choose a design / message me).
   const OFFERS = () => [
@@ -171,6 +176,7 @@
           url: "https://iltizam-najran.netlify.app/", category: L("إدارة وتحليل", "Management & analytics"), status: "live", embed: true }),
         SITE_BUILDER(),
         PROMPT_STUDIO(),
+        SECURITY_GATE(),
         ...OFFERS(),
       ],
     },
@@ -214,7 +220,7 @@
   ];
 
   window.SEED = {
-    version: 7,
+    version: 8,
     // Hero numbers. Empty value = calculated from the data; show:false hides the number.
     stats: {
       years: { show: true, value: "15" },
