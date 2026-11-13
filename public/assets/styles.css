@@ -293,3 +293,8 @@ pre { background: #0f1b2e; color: #cfe1ff; padding: .8rem; border-radius: 8px; o
   main { padding-bottom: 2rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+/* Offer / messaging cards inside the websites section */
+.card.offer { border-style: dashed; border-color: var(--blue-2); background: linear-gradient(180deg, #f7faff, #fff); }
+.card.offer .preview { background: linear-gradient(135deg, var(--navy), var(--blue)); }
+.card.offer .thumb-icon { color: var(--gold-2); }

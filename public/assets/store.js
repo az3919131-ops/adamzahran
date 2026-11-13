@@ -23,6 +23,15 @@
     out.contact = { ...seed.contact, ...(c.contact || {}) };
     out.tags = Array.isArray(c.tags) ? c.tags : seed.tags;
     out.sections = Array.isArray(c.sections) ? c.sections : seed.sections;
+    if ((out.version || 1) < 2) {
+      const pl = out.sections.find((s) => s.id === "platforms");
+      if (pl) {
+        if (pl.title && pl.title.ar === "منصات صممتها لخدمة المجتمع") pl.title = { ar: "مواقع من تنفيذي", en: "Websites I Built" };
+        pl.items = Array.isArray(pl.items) ? pl.items : [];
+        for (const o of window.SEED_OFFERS()) if (!pl.items.some((i) => i.id === o.id)) pl.items.push(o);
+      }
+      out.version = 2;
+    }
     out.sections.forEach((s) => { s.items = Array.isArray(s.items) ? s.items : []; if (s.visible === undefined) s.visible = true; });
     return out;
   }

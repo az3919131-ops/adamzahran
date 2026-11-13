@@ -76,8 +76,17 @@ await test("WhatsApp link uses international format with prefilled message; mail
 });
 await test("platform / channel / LinkedIn links open in a new tab", async () => {
   const links = await page.$$eval("#sec-platforms .btn-primary, #sec-youtube .btn-primary, #sec-linkedin .btn-primary", (as) => as.map((a) => [a.href, a.target, a.rel]));
-  assert(links.length === 4 && links.every(([, t, r]) => t === "_blank" && r.includes("noopener")), JSON.stringify(links));
+  assert(links.length === 5 && links.every(([, t, r]) => t === "_blank" && r.includes("noopener")), JSON.stringify(links));
   assert(links.some(([h]) => h === "https://iltizam-training.netlify.app/#/home"), "iltizam link");
+});
+await test("websites section renamed; offer cards have design link + WhatsApp/email buttons", async () => {
+  assert((await page.textContent("#sec-platforms h2")).trim() === "مواقع من تنفيذي", "section title");
+  const offers = await page.$$("#sec-platforms .card.offer");
+  assert(offers.length === 2, "two offer cards");
+  const hrefs = await page.$$eval("#sec-platforms .card.offer a", (as) => as.map((a) => a.href));
+  assert(hrefs.includes("https://21st.dev/?q=%E2%80%A2+Radial+Orbital+Timeline&qs=bookmarks"), "21st.dev link");
+  assert(hrefs.filter((h) => h.startsWith("https://wa.me/966565324387?text=")).length === 2, "whatsapp buttons");
+  assert(hrefs.filter((h) => h.startsWith("mailto:az3919131@gmail.com")).length === 2, "email buttons");
 });
 await test("search + filters (text, year, tag, clear)", async () => {
   await page.fill("#q", "SCADA");
@@ -144,7 +153,7 @@ await test("add an item in each of the six display sections", async () => {
 });
 await test("required-field validation blocks saving an item without a URL", async () => {
   await login();
-  await gotoSection("platforms");
+  await gotoSection("linkedin");
   await page.click("[data-a=add]");
   await page.fill('#f-item [name="title.ar"]', "بدون رابط");
   await page.click("#f-item [type=submit]");

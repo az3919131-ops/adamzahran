@@ -45,7 +45,7 @@
     for (const k of ["year", "launchDate"]) { const y = yearOf(it[k]); if (y) ys.add(y); }
     return [...ys];
   };
-  const itemStatus = (it, s) => (["platforms", "insurance", "future"].includes(s.type) ? it.status || "" : "");
+  const itemStatus = (it, s) => (["platforms", "insurance", "future"].includes(s.type) && it.status !== "none" ? it.status || "" : "");
   const itemText = (it) => {
     const parts = [];
     for (const v of Object.values(it)) {
@@ -58,7 +58,7 @@
     `data-filter-item data-section="${esc(s.id)}" data-years="${itemYears(it).join(",")}" data-status="${esc(itemStatus(it, s))}" data-tags="${esc((it.tags || []).join(","))}" data-text="${esc(itemText(it))}"`;
 
   const featuredBadge = (it) => (it.featured ? `<span class="badge badge-gold">${ICON.bolt}${esc(t("featured"))}</span>` : "");
-  const statusBadge = (st) => (st ? `<span class="badge status-${esc(st)}">${esc(t("status_" + st))}</span>` : "");
+  const statusBadge = (st) => (st && st !== "none" ? `<span class="badge status-${esc(st)}">${esc(t("status_" + st))}</span>` : "");
   const thumb = (it, fallbackIcon) => {
     const u = safeUrl(it.image);
     return u ? `<img class="thumb" src="${esc(u)}" alt="" loading="lazy">` : `<div class="thumb thumb-icon">${ICON[fallbackIcon]}</div>`;
@@ -115,13 +115,19 @@
     },
     platforms(it, s, c) {
       const u = safeUrl(it.url);
-      return `<article class="card platform ${it.featured ? "is-featured" : ""}" ${dataAttrs(it, s)}>
-        <div class="preview" ${it.embed && u ? `data-embed="${esc(u)}"` : ""}>${thumb(it, "globe")}</div>
+      const ct = c.contact || {};
+      const subject = loc(it.title);
+      const wa = it.cta && ct.whatsapp?.visible !== false ? waLink(ct, `${loc(ct.whatsappMessage)} ${subject}`.trim()) : "";
+      const mail = it.cta && ct.email?.visible !== false && ct.email?.value ? `mailto:${ct.email.value}?subject=${encodeURIComponent(subject)}` : "";
+      const cta = (wa ? `<a class="btn btn-wa" href="${esc(wa)}" target="_blank" rel="noopener noreferrer">${ICON.wa}<span>${esc(t("waShort"))}</span></a>` : "") +
+        (mail ? `<a class="btn btn-gold" href="${esc(mail)}">${ICON.mail}<span>${esc(t("mailShort"))}</span></a>` : "");
+      return `<article class="card platform ${it.cta ? "offer" : ""} ${it.featured ? "is-featured" : ""}" ${dataAttrs(it, s)}>
+        <div class="preview" ${it.embed && u ? `data-embed="${esc(u)}"` : ""}>${thumb(it, it.cta ? (u ? "link" : "mail") : "globe")}</div>
         <div class="card-head"><h3>${esc(loc(it.title))}</h3>${featuredBadge(it)}</div>
         <p class="meta">${statusBadge(it.status)}${loc(it.category) ? ` <span class="chip">${esc(loc(it.category))}</span>` : ""}${it.launchDate ? ` · ${t("launched")}: ${esc(it.launchDate)}` : ""}</p>
         ${loc(it.description) ? `<p>${esc(loc(it.description))}</p>` : ""}
         <div class="chips">${tagChips(c, it)}</div>
-        <div class="actions">${btn(it.url, t("openPlatform"), "ext", "btn btn-primary")}</div></article>`;
+        <div class="actions">${btn(it.url, loc(it.buttonLabel) || t("openPlatform"), "ext", "btn btn-primary")}${cta}</div></article>`;
     },
     insurance(it, s, c) { return R.platforms({ ...it, embed: false }, s, c); },
     youtube(it, s, c) {
@@ -184,7 +190,7 @@
       { k: "stat_years", v: years, show: starts.length > 0 },
       { k: "stat_projects", v: vis("projects").length, show: true },
       { k: "stat_courses", v: vis("courses").length, show: true },
-      { k: "stat_platforms", v: vis("platforms").length, show: true },
+      { k: "stat_platforms", v: vis("platforms").filter((i) => !i.cta).length, show: true },
     ].filter((x) => x.show && x.v > 0);
   }
 

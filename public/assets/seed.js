@@ -17,6 +17,20 @@
 
   const base = (extra) => ({ visible: true, featured: false, tags: [], verified: true, ...extra });
 
+  // Offer cards shown next to the built websites (choose a design / message me).
+  const OFFERS = () => [
+    base({ id: "plt-offer-choose", tags: ["prog"], status: "none", embed: false, cta: true,
+      title: L("اختر موقعك المناسب واتصل لتنفيذه", "Choose the website that suits you and contact me to build it"),
+      description: L("تصفّح النماذج من الرابط، اختر التصميم الذي يناسبك، ثم راسلني لتنفيذه.", "Browse the designs from the link, pick the one that suits you, then message me to build it."),
+      url: "https://21st.dev/?q=%E2%80%A2+Radial+Orbital+Timeline&qs=bookmarks",
+      buttonLabel: L("تصفّح النماذج واختر", "Browse designs & choose") }),
+    base({ id: "plt-offer-contact", tags: ["prog"], status: "none", embed: false, cta: true,
+      title: L("راسلني لتنفيذ موقعك", "Message me to build your website"),
+      description: L("أرسل لي فكرتك أو التصميم الذي اخترته وسأتواصل معك.", "Send me your idea or the design you chose and I will get back to you."),
+      url: "" }),
+  ];
+  window.SEED_OFFERS = OFFERS;
+
   const sections = [
     {
       id: "experience", type: "experience", visible: true,
@@ -134,7 +148,7 @@
     },
     {
       id: "platforms", type: "platforms", visible: true,
-      title: L("منصات صممتها لخدمة المجتمع", "Platforms I Built for the Community"),
+      title: L("مواقع من تنفيذي", "Websites I Built"),
       items: [
         base({ id: id("plt"), featured: true, tags: ["edu", "comm", "prog"],
           title: L("منصة التزام للتدريب", "Iltizam Training Platform"),
@@ -144,6 +158,7 @@
           title: L("منصة التزام لإدارة وتحليل أعمال المقاولين", "Iltizam Contractor Management & Analytics Platform"),
           description: L("منصة لإدارة وتحليل أعمال المقاولين.", "A platform for managing and analyzing contractors' work."),
           url: "https://iltizam-najran.netlify.app/", category: L("إدارة وتحليل", "Management & analytics"), status: "live", embed: true }),
+        ...OFFERS(),
       ],
     },
     {
@@ -186,7 +201,7 @@
   ];
 
   window.SEED = {
-    version: 1,
+    version: 2,
     profile: {
       name: L("م. أحمد زهران", "Eng. Ahmed Zahran"),
       title: L("مدير مشاريع ومهندس قوى كهربائية", "Project Manager & Electrical Power Engineer"),

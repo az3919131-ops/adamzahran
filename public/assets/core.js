@@ -6,12 +6,12 @@
       appName: "اللوحة المهنية — م. أحمد زهران",
       nav_home: "الرئيسية", nav_contact: "تواصل", admin: "لوحة الإدارة", publicView: "الصفحة العامة",
       langToggle: "English", share: "مشاركة", print: "طباعة / PDF", copied: "تم النسخ", copyLink: "نسخ رابط القسم",
-      whatsapp: "تواصل عبر واتساب", emailMe: "راسلني بالبريد", copyEmail: "نسخ البريد",
+      waShort: "راسلني واتساب", mailShort: "راسلني بالبريد", whatsapp: "تواصل عبر واتساب", emailMe: "راسلني بالبريد", copyEmail: "نسخ البريد",
       stat_years: "سنوات الخبرة", stat_projects: "المشاريع", stat_courses: "الدورات", stat_platforms: "المنصات",
       stat_note: "تُحسب تلقائيًا من البيانات المدخلة",
       search: "بحث في المحتوى…", f_section: "كل الأقسام", f_year: "كل السنوات", f_status: "كل الحالات", f_tag: "كل الوسوم",
       clearFilters: "مسح الفلاتر", noResults: "لا توجد نتائج مطابقة.",
-      present: "حتى الآن", featured: "رئيسي", openPlatform: "فتح المنصة", visitChannel: "زيارة القناة", watch: "مشاهدة",
+      present: "حتى الآن", featured: "رئيسي", openPlatform: "فتح الموقع", visitChannel: "زيارة القناة", watch: "مشاهدة",
       openPage: "فتح الصفحة", openLink: "فتح الرابط", viewFile: "عرض الملف", achievements: "الإنجازات", tools: "الأدوات",
       role: "الدور", results: "النتائج", launched: "تاريخ الإطلاق", subscribers: "المشتركون", views: "المشاهدات",
       course: "دورة تدريبية", certificate: "شهادة معتمدة", planNote: "عناصر قيد التطوير — ليست خبرات أو شهادات مكتملة ما لم تُذكر حالتها كذلك.",
@@ -22,7 +22,7 @@
       preview: "وضع المعاينة — هذه المسودة لم تُنشر بعد", backToAdmin: "العودة للوحة الإدارة",
       footer: "Project Manager | Eng. Ahmed Zahran",
       skip: "تخطَّ إلى المحتوى", menu: "القائمة",
-      status_live: "يعمل", status_beta: "تجريبي", status_stopped: "متوقف",
+      status_none: "بدون حالة", status_live: "يعمل", status_beta: "تجريبي", status_stopped: "متوقف",
       status_planned: "مخطط", status_studying: "قيد الدراسة", status_completed: "مكتمل", status_certified: "شهادة معتمدة", status_applied: "خبرة تطبيقية",
       kind_channel: "قناة", kind_video: "فيديو", kind_personal: "حساب شخصي", kind_company: "صفحة شركة", kind_project: "صفحة مشروع",
       kind_course: "دورة تدريبية", kind_certificate: "شهادة معتمدة",
@@ -32,12 +32,12 @@
       appName: "Professional Dashboard — Eng. Ahmed Zahran",
       nav_home: "Home", nav_contact: "Contact", admin: "Admin", publicView: "Public page",
       langToggle: "العربية", share: "Share", print: "Print / PDF", copied: "Copied", copyLink: "Copy section link",
-      whatsapp: "Chat on WhatsApp", emailMe: "Email me", copyEmail: "Copy email",
+      waShort: "WhatsApp me", mailShort: "Email me", whatsapp: "Chat on WhatsApp", emailMe: "Email me", copyEmail: "Copy email",
       stat_years: "Years of experience", stat_projects: "Projects", stat_courses: "Courses", stat_platforms: "Platforms",
       stat_note: "Calculated automatically from the entered data",
       search: "Search content…", f_section: "All sections", f_year: "All years", f_status: "All statuses", f_tag: "All tags",
       clearFilters: "Clear filters", noResults: "No matching results.",
-      present: "Present", featured: "Featured", openPlatform: "Open platform", visitChannel: "Visit channel", watch: "Watch",
+      present: "Present", featured: "Featured", openPlatform: "Open website", visitChannel: "Visit channel", watch: "Watch",
       openPage: "Open page", openLink: "Open link", viewFile: "View file", achievements: "Achievements", tools: "Tools",
       role: "Role", results: "Results", launched: "Launched", subscribers: "Subscribers", views: "Views",
       course: "Training course", certificate: "Accredited certificate", planNote: "Items in development — not completed experience or certificates unless their status says so.",
@@ -48,7 +48,7 @@
       preview: "Preview mode — this draft is not published yet", backToAdmin: "Back to admin",
       footer: "Project Manager | Eng. Ahmed Zahran",
       skip: "Skip to content", menu: "Menu",
-      status_live: "Live", status_beta: "Beta", status_stopped: "Stopped",
+      status_none: "No status", status_live: "Live", status_beta: "Beta", status_stopped: "Stopped",
       status_planned: "Planned", status_studying: "Under study", status_completed: "Completed", status_certified: "Accredited certificate", status_applied: "Hands-on experience",
       kind_channel: "Channel", kind_video: "Video", kind_personal: "Personal profile", kind_company: "Company page", kind_project: "Project page",
       kind_course: "Training course", kind_certificate: "Accredited certificate",
@@ -101,7 +101,7 @@
     end: { key: "end", kind: "year", label: "تاريخ النهاية" },
     tools: { key: "tools", kind: "text", label: "الأدوات (مفصولة بفواصل)" },
   };
-  const statusPlatform = { key: "status", kind: "select", label: "الحالة", options: ["live", "beta", "stopped"], prefix: "status_" };
+  const statusPlatform = { key: "status", kind: "select", label: "الحالة", options: ["live", "beta", "stopped", "none"], prefix: "status_" };
 
   const SCHEMAS = {
     experience: { label: "خبرة", fields: [
@@ -119,8 +119,10 @@
       { ...F.title, label: "اسم الدورة" }, { key: "provider", kind: "ltext", label: "الجهة المقدمة (اختياري)" }, { key: "year", kind: "year", label: "السنة (اختياري)" },
       { key: "kind", kind: "select", label: "النوع", options: ["course", "certificate"], prefix: "kind_", help: "لا تختر «شهادة معتمدة» إلا إذا كانت شهادة فعلية موثقة." },
       F.attachment, F.link] },
-    platforms: { label: "منصة", fields: [
-      { ...F.title, label: "اسم المنصة" }, F.description, { ...F.url, required: true }, { key: "category", kind: "ltext", label: "التصنيف" },
+    platforms: { label: "موقع / مربع", fields: [
+      { ...F.title, label: "اسم الموقع / عنوان المربع" }, F.description, F.url, { key: "buttonLabel", kind: "ltext", label: "نص زر الرابط (اختياري)" },
+      { key: "cta", kind: "bool", label: "مربع عرض/مراسلة: إظهار أزرار واتساب والبريد (لا يُحسب ضمن عدد المواقع)" },
+      { key: "category", kind: "ltext", label: "التصنيف" },
       statusPlatform, F.image, { key: "launchDate", kind: "year", label: "تاريخ الإطلاق (اختياري)" },
       { key: "embed", kind: "bool", label: "محاولة عرض معاينة مضمنة (تظهر فقط إذا سمح الموقع بذلك)" }] },
     insurance: { label: "موقع", fields: [
