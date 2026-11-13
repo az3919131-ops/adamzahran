@@ -227,7 +227,6 @@
     const photo = safeUrl(c.profile.photo);
     const sitesSec = secs.find((x) => x.type === "platforms");
 
-    const years = [...new Set(allItems.flatMap(({ i }) => itemYears(i)))].sort((a, b) => b - a);
     const contactBlock = !isCv && (ct.formVisible !== false || wa || email);
 
     const secHTML = (s) => {
