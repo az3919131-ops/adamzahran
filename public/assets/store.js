@@ -54,6 +54,19 @@
       }
       out.version = 5;
     }
+    if ((out.version || 1) < 6) {
+      // the website-design platform card was replaced by the real estate marketing platform
+      const pl = out.sections.find((s) => s.id === "platforms");
+      if (pl) {
+        const old = pl.items.findIndex((i) => i.id === "plt-site-builder" || i.url === "https://eltezam-platform.netlify.app/");
+        const fresh = window.SEED_SITE_BUILDER();
+        if (!pl.items.some((i) => i.id === fresh.id || i.url === fresh.url)) {
+          if (old >= 0) pl.items.splice(old, 1, fresh);
+          else { const at = pl.items.findIndex((i) => i.id === "plt-offer-choose"); pl.items.splice(at < 0 ? pl.items.length : at, 0, fresh); }
+        } else if (old >= 0) pl.items.splice(old, 1);
+      }
+      out.version = 6;
+    }
     out.stats = { ...seed.stats, ...(out.stats || {}) };
     out.sections.forEach((s) => { s.items = Array.isArray(s.items) ? s.items : []; if (s.visible === undefined) s.visible = true; });
     return out;

@@ -17,10 +17,10 @@
 
   const base = (extra) => ({ visible: true, featured: false, tags: [], verified: true, ...extra });
 
-  const SITE_BUILDER = () => base({ id: "plt-site-builder", tags: ["prog"], status: "live", embed: true,
-    title: L("منصة تصميم المواقع", "Website Design Platform"),
+  const SITE_BUILDER = () => base({ id: "plt-real-estate", tags: ["prog"], status: "live", embed: true,
+    title: L("منصة التسويق العقاري (نور مدينتي)", "Real Estate Marketing Platform (Nour Madinty)"),
     description: L("", ""), category: L("", ""),
-    url: "https://eltezam-platform.netlify.app/" });
+    url: "https://nourmadinty.netlify.app" });
   window.SEED_SITE_BUILDER = SITE_BUILDER;
 
   // Offer cards shown next to the built websites (choose a design / message me).
@@ -208,7 +208,7 @@
   ];
 
   window.SEED = {
-    version: 5,
+    version: 6,
     // Hero numbers. Empty value = calculated from the data; show:false hides the number.
     stats: {
       years: { show: true, value: "15" },

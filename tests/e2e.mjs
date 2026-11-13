@@ -89,12 +89,13 @@ await test("websites section renamed; offer cards have design link + WhatsApp/em
   assert(hrefs.filter((h) => h.startsWith("https://wa.me/966565324387?text=")).length === 2, "whatsapp buttons");
   assert(hrefs.filter((h) => h.startsWith("mailto:az3919131@gmail.com")).length === 2, "email buttons");
 });
-await test("منصة تصميم المواقع card sits above the choose-a-site card, with its link", async () => {
+await test("real estate platform card replaces the website-design card, above the choose-a-site card", async () => {
   const titles = await page.$$eval("#sec-platforms .card h3", (h) => h.map((x) => x.textContent.trim()));
-  const i = titles.indexOf("منصة تصميم المواقع");
+  assert(!titles.includes("منصة تصميم المواقع"), "old card must be gone");
+  const i = titles.indexOf("منصة التسويق العقاري (نور مدينتي)");
   assert(i >= 0 && titles[i + 1] === "اختر موقعك المناسب واتصل لتنفيذه", "order " + titles.join(" | "));
-  const href = await page.$$eval("#sec-platforms .card", (cs) => cs.find((c) => c.querySelector("h3").textContent.trim() === "منصة تصميم المواقع").querySelector("a.btn-primary").href);
-  assert(href === "https://eltezam-platform.netlify.app/", href);
+  const href = await page.$$eval("#sec-platforms .card", (cs) => cs.find((c) => c.querySelector("h3").textContent.trim() === "منصة التسويق العقاري (نور مدينتي)").querySelector("a.btn-primary").href);
+  assert(href === "https://nourmadinty.netlify.app/", href);
 });
 await test("hero: CV button opens the CV site, portrait shown, sites link jumps to the sites section", async () => {
   const cv = await page.$eval(".hero .btn-cv", (a) => [a.href, a.target]);
