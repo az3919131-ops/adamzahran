@@ -96,19 +96,31 @@ await test("hero: CV button opens the CV site, portrait shown, sites link jumps 
   const sl = await page.$eval(".hero .sites-link", (a) => [a.getAttribute("href"), a.textContent.trim()]);
   assert(sl[0] === "#sec-platforms" && sl[1] === "تصفح مواقع ومنصات التزام", "sites link " + sl);
 });
-await test("nav: CV sections live in one dropdown titled السيرة الذاتية", async () => {
-  assert((await page.textContent(".navdrop-btn")).trim() === "السيرة الذاتية", "dropdown title");
-  assert(!(await page.isVisible("#cv-menu")), "closed by default");
-  await page.click(".navdrop-btn");
-  const items = await page.$$eval("#cv-menu a", (as) => as.map((a) => a.getAttribute("href")));
-  assert(items.join() === "#sec-experience,#sec-projects,#sec-skills,#sec-education,#sec-courses", items.join());
-  assert(await page.isVisible("#cv-menu a"), "opens");
-  const top = await page.$$eval("#mainnav > a", (as) => as.map((a) => a.getAttribute("href")));
-  assert(!top.includes("#sec-skills") && top.includes("#sec-platforms"), "top-level links " + top);
-  await page.click("#cv-menu a >> nth=2");
-  assert(!(await page.isVisible("#cv-menu")), "closes after choosing");
+await test("CV sections are off the home page; nav link السيرة الذاتية opens a separate CV page", async () => {
+  for (const id of ["experience", "projects", "skills", "education", "courses"]) assert(!(await page.$("#sec-" + id)), id + " must not be on the home page");
+  assert((await page.$$eval("#mainnav a.nav-cv", (a) => a.map((x) => x.textContent.trim() + "|" + x.getAttribute("href")))).join() === "السيرة الذاتية|#/cv", "nav link");
+  assert((await page.$$("#mainnav .navdrop")).length === 0, "no dropdown any more");
+  await page.click("#mainnav a.nav-cv");
+  await page.waitForSelector(".cv-hero");
+  const ids = await page.$$eval("[data-section-block]", (e) => e.map((x) => x.id));
+  assert(ids.join() === "sec-experience,sec-projects,sec-skills,sec-education,sec-courses", ids.join());
+  assert(!(await page.$(".busbar")) && !(await page.$("#sec-contact")) && !(await page.$("#sec-platforms")), "CV page has only CV content");
+  assert((await page.textContent(".cv-hero h1")).trim() === "السيرة الذاتية", "title");
+  await page.click("#mainnav a[href='#sec-skills']");
+  assert(await page.isVisible(".cv-hero"), "in-page anchor stays on the CV page");
+  await page.click(".back-link");
+  await page.waitForSelector(".hero .portrait");
+  assert(!!(await page.$("#sec-platforms")), "back on home");
 });
-await test("search + filters (text, year, tag, clear)", async () => {
+await test("old shared link /#sec-experience opens the CV page", async () => {
+  await page.goto("about:blank");
+  await page.goto(B + "#sec-experience");
+  await page.waitForSelector(".cv-hero");
+  assert(await page.isVisible("#sec-experience"), "lands on the experience section");
+  await page.goto(B + "#/"); await page.waitForSelector(".hero .portrait");
+});
+await test("CV page: search + filters (text, year, clear)", async () => {
+  await page.goto(B + "#/cv"); await page.waitForSelector(".cv-hero");
   await page.fill("#q", "SCADA");
   let vis = await page.$$eval("[data-filter-item]:not([hidden])", (e) => e.length);
   assert(vis === 2, "SCADA matches skills+course, got " + vis);
@@ -117,11 +129,15 @@ await test("search + filters (text, year, tag, clear)", async () => {
   vis = await page.$$eval("[data-filter-item]:not([hidden])", (e) => e.length);
   assert(vis === 1, "year 2013 → 1 experience, got " + vis);
   await page.click("#f-clear");
-  await page.selectOption("#f-tag", "edu");
-  vis = await page.$$eval("[data-filter-item]:not([hidden])", (e) => e.length);
-  assert(vis === 1, "tag edu → 1, got " + vis);
   await page.fill("#q", "zzzz-nothing");
   assert(await page.isVisible("#no-results"), "no results message");
+  await page.click("#f-clear");
+  await page.goto(B + "#/"); await page.waitForSelector(".hero .portrait");
+});
+await test("home page: search + filters (tag, clear)", async () => {
+  await page.selectOption("#f-tag", "edu");
+  const vis = await page.$$eval("[data-filter-item]:not([hidden])", (e) => e.length);
+  assert(vis === 1, "tag edu → 1, got " + vis);
   await page.click("#f-clear");
 });
 await test("language switch AR ⇄ EN (dir + content)", async () => {
@@ -165,7 +181,10 @@ await test("add an item in each of the six display sections", async () => {
   await addItem("pages", { "title.ar": "صفحتي الاختبارية", url: "https://example.com/mypage" });
   await publish();
   await publicPage();
-  for (const [sec, txt] of [["experience", "خبرة اختبارية"], ["platforms", "منصة اختبار"], ["youtube", "فيديو اختبار"], ["linkedin", "صفحة شركة اختبار"], ["insurance", "موقع تأمين اختبار"], ["pages", "صفحتي الاختبارية"]]) {
+  await page.goto(B + "#/cv"); await page.waitForSelector(".cv-hero");
+  assert((await page.textContent("#sec-experience")).includes("خبرة اختبارية"), "experience missing item on CV page");
+  await publicPage();
+  for (const [sec, txt] of [["platforms", "منصة اختبار"], ["youtube", "فيديو اختبار"], ["linkedin", "صفحة شركة اختبار"], ["insurance", "موقع تأمين اختبار"], ["pages", "صفحتي الاختبارية"]]) {
     assert((await page.textContent(`#sec-${sec}`)).includes(txt), `${sec} missing item`);
   }
   const t = await page.$$eval("#sec-insurance a.btn-primary, #sec-pages a.btn-primary", (as) => as.every((a) => a.target === "_blank"));
@@ -198,13 +217,12 @@ await test("hide a whole section and reorder via buttons", async () => {
   await login();
   await page.click("[data-tab=sections]");
   await page.uncheck("#sec-list li[data-id=youtube] [data-a=vis]");
-  const first = await page.$eval("#sec-list li:nth-child(2)", (e) => e.dataset.id);
-  await page.click("#sec-list li:nth-child(2) [data-a=up]");
-  assert((await page.$eval("#sec-list li:nth-child(1)", (e) => e.dataset.id)) === first, "reordered");
+  await page.click("#sec-list li[data-id=linkedin] [data-a=up]");
   await publish();
   await publicPage();
   assert(!(await page.$("#sec-youtube")), "youtube hidden");
-  assert((await page.$eval("[data-section-block]", (e) => e.id)) === "sec-" + first, "order on public page");
+  const ids = await page.$$eval("[data-section-block]", (e) => e.map((x) => x.id));
+  assert(ids.slice(0, 2).join() === "sec-platforms,sec-linkedin", "order on public page: " + ids.join());
 });
 await test("create a custom section and add an item", async () => {
   await login();

@@ -398,18 +398,18 @@ pre { background: #0f1b2e; color: #cfe1ff; padding: .8rem; border-radius: 8px; o
 /* legibility: keep the display face for the name and section titles only */
 .hero .role, .sites-link { font-family: var(--font); font-weight: 700; }
 
-/* nav: CV sections grouped in one dropdown */
+/* nav */
 .mainnav { overflow: visible; flex-wrap: wrap; align-items: center; -webkit-mask-image: none !important; mask-image: none !important; padding-inline-end: 0; }
-.navdrop { position: relative; }
-.navdrop-btn { display: inline-flex; align-items: center; gap: .4rem; font: inherit; font-size: .92rem; font-weight: 600; color: #fff; background: rgba(255,255,255,.08); border: 1px solid rgba(240,205,124,.45); border-radius: 8px; padding: .4rem .8rem; cursor: pointer; white-space: nowrap; }
-.navdrop-btn:hover, .navdrop.open .navdrop-btn { background: rgba(240,205,124,.18); }
-.caret { width: 7px; height: 7px; border-right: 2px solid var(--gold-2); border-bottom: 2px solid var(--gold-2); transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
-.navdrop.open .caret { transform: rotate(-135deg) translateY(-2px); }
-.navdrop-menu { display: none; position: absolute; top: calc(100% + 10px); inset-inline-start: 0; min-width: 220px; flex-direction: column; gap: 2px; padding: .4rem; background: #0e2548; border: 1px solid rgba(255,255,255,.14); border-top: 3px solid var(--gold); border-radius: 0 0 12px 12px; box-shadow: 0 18px 40px rgba(0,0,0,.4); z-index: 60; }
-.navdrop.open .navdrop-menu { display: flex; }
-.navdrop-menu a { padding: .55rem .8rem; border-radius: 8px; }
-@media (max-width: 760px) {
-  .mainnav { flex-wrap: nowrap; align-items: stretch; }
-  .navdrop-btn { width: 100%; justify-content: space-between; }
-  .navdrop-menu { position: static; min-width: 0; box-shadow: none; border-radius: 8px; margin-top: .3rem; }
-}
+.mainnav a.nav-cv { color: #fff; background: rgba(255,255,255,.08); border: 1px solid rgba(240,205,124,.45); font-weight: 600; }
+.mainnav a.nav-cv:hover { background: rgba(240,205,124,.18); }
+@media (max-width: 760px) { .mainnav { flex-wrap: nowrap; align-items: stretch; } }
+
+/* CV page */
+.cv-hero { padding: 2.6rem 0 2.8rem; }
+.cv-hero-in { position: relative; display: grid; gap: .4rem; justify-items: start; }
+.cv-hero h1 { font-family: var(--display); font-weight: 700; font-size: clamp(2.2rem, 5.5vw, 3.4rem); margin: .3rem 0 0; color: #fff; }
+.back-link { display: inline-flex; align-items: center; gap: .45rem; color: var(--gold-2); text-decoration: none; font-weight: 600; }
+.back-link:hover { text-decoration: underline; }
+.back-link svg { width: 18px; height: 18px; }
+
+@media print { .cv-hero { padding: 0 0 .8rem; } .cv-hero h1 { color: var(--navy); } .back-link { display: none; } }

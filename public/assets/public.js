@@ -16,6 +16,7 @@
     li: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.1a4.2 4.2 0 0 1 3.8-2.1c4 0 4.8 2.7 4.8 6.1V21h-4v-5.2c0-1.2 0-2.8-1.7-2.8s-2 1.3-2 2.7V21h-4z"/></svg>',
     file: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M6 2h8l4 4v16H6z M14 2v4h4"/></svg>',
     globe: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm-9 9h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>',
+    home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M3 11l9-8 9 8 M5 10v10h5v-6h4v6h5V10"/></svg>',
     pin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M12 21s7-6.3 7-12a7 7 0 0 0-14 0c0 5.7 7 12 7 12Z M12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>',
   };
 
@@ -201,24 +202,28 @@
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
     document.title = `${loc(c.profile.name)} — ${loc(c.profile.title)}`;
 
-    const secs = visibleSections(c);
+    const isCv = opts.page === "cv";
+    const CV_TYPES = ["experience", "projects", "skills", "education", "courses"];
+    const allSecs = visibleSections(c);
+    // The CV sections live on their own page (#/cv); the home page shows everything else.
+    const secs = allSecs.filter((x) => CV_TYPES.includes(x.type) === isCv);
+    const hasCvPage = allSecs.some((x) => CV_TYPES.includes(x.type));
     const ct = c.contact || {};
     const wa = ct.whatsapp?.visible !== false ? waLink(ct, loc(ct.whatsappMessage)) : "";
     const email = ct.email?.visible !== false ? ct.email?.value || "" : "";
     const stats = computeStats(c);
     const cv = safeUrl(c.profile.cvUrl);
-    // CV parts (experience, projects, skills, education, courses) sit under one "CV" dropdown in the nav.
-    const CV_TYPES = ["experience", "projects", "skills", "education", "courses"];
-    const cvSecs = secs.filter((x) => CV_TYPES.includes(x.type));
     const navLink = (x) => `<a href="#sec-${esc(x.id)}">${esc(loc(x.title))}</a>`;
-    let dropDone = false;
-    const navHTML = secs.map((x) => {
-      if (cvSecs.length < 2 || !CV_TYPES.includes(x.type)) return navLink(x);
-      if (dropDone) return "";
-      dropDone = true;
-      return `<div class="navdrop"><button type="button" class="navdrop-btn" aria-expanded="false" aria-controls="cv-menu">${esc(t("navCv"))}<span class="caret" aria-hidden="true"></span></button>
-        <div class="navdrop-menu" id="cv-menu">${cvSecs.map(navLink).join("")}</div></div>`;
-    }).join("");
+    let cvLinkDone = false;
+    const cvNavLink = () => `<a class="nav-cv" href="#/cv">${esc(t("navCv"))}</a>`;
+    const navHTML = isCv
+      ? `<a href="#/">${esc(t("navHome"))}</a>` + secs.map(navLink).join("")
+      : allSecs.map((x) => {
+          if (!CV_TYPES.includes(x.type)) return navLink(x);
+          if (cvLinkDone) return "";
+          cvLinkDone = true;
+          return cvNavLink();
+        }).join("");
     const photo = safeUrl(c.profile.photo);
     const sitesSec = secs.find((x) => x.type === "platforms");
 
@@ -226,14 +231,14 @@
     const years = [...new Set(allItems.flatMap(({ i }) => itemYears(i)))].sort((a, b) => b - a);
     const statuses = [...new Set(allItems.map(({ i, s }) => itemStatus(i, s)).filter(Boolean))];
     const usedTags = c.tags.filter((tg) => allItems.some(({ i }) => (i.tags || []).includes(tg.id)));
-    const contactBlock = (ct.formVisible !== false || wa || email);
+    const contactBlock = !isCv && (ct.formVisible !== false || wa || email);
 
     root.innerHTML = `
       <a class="skip" href="#main">${t("skip")}</a>
       ${opts.preview ? `<div class="preview-bar" role="status">${esc(t("preview"))} <a class="btn btn-small" href="#/admin">${esc(t("backToAdmin"))}</a></div>` : ""}
       <header class="topbar">
         <div class="wrap topbar-in">
-          <a class="brand" href="#top"><span class="brand-mark">${ICON.bolt}</span><span>${esc(loc(c.profile.name))}</span></a>
+          <a class="brand" href="${isCv ? "#/" : "#top"}"><span class="brand-mark">${ICON.bolt}</span><span>${esc(loc(c.profile.name))}</span></a>
           <button class="btn btn-icon nav-toggle" aria-expanded="false" aria-controls="mainnav" aria-label="${esc(t("menu"))}">☰</button>
           <nav id="mainnav" class="mainnav" aria-label="sections">
             ${navHTML}
@@ -248,7 +253,22 @@
       </header>
 
       <main id="main">
-        <section class="hero" id="top">
+        ${isCv ? `        <section class="hero cv-hero" id="top">
+          <div class="hero-grid" aria-hidden="true"></div>
+          <div class="wrap cv-hero-in">
+            <a class="back-link" href="#/">${ICON.home}<span>${esc(t("backHome"))}</span></a>
+            <h1>${esc(t("navCv"))}</h1>
+            <p class="role">${esc(loc(c.profile.name))}${loc(c.profile.title) ? ` · ${esc(loc(c.profile.title))}` : ""}</p>
+            <p class="bio">${esc(t("cvPageSub"))}</p>
+            <div class="hero-actions">
+              ${wa ? `<a class="btn btn-wa" href="${esc(wa)}" target="_blank" rel="noopener noreferrer">${ICON.wa}<span>${esc(t("whatsapp"))}</span></a>` : ""}
+              ${email ? `<a class="btn btn-gold" href="mailto:${esc(email)}">${ICON.mail}<span>${esc(t("emailMe"))}</span></a>` : ""}
+              <button class="btn btn-ghost-light no-print" data-act="print">${ICON.print}<span>${esc(t("print"))}</span></button>
+            </div>
+          </div>
+        </section>
+
+` : `        <section class="hero" id="top">
           <div class="hero-grid" aria-hidden="true"></div>
           <div class="wrap hero-in">
             <div class="hero-text">
@@ -276,6 +296,8 @@
             </div>
             ${stats.every((x) => !x.manual) ? `<p class="stat-note">${esc(t("stat_note"))}</p>` : ""}</div>` : ""}
         </section>
+
+`}
 
         <section class="toolbar wrap no-print" aria-label="filters">
           <input type="search" id="q" placeholder="${esc(t("search"))}" aria-label="${esc(t("search"))}">
@@ -326,11 +348,18 @@
         <p class="no-print"><a href="#/admin" class="muted-link">${esc(t("admin"))}</a></p>
       </div></footer>`;
 
-    bind(root, c, { wa, email });
+    bind(root, c, { wa, email, page: opts.page });
     loadEmbeds(root);
-    if (location.hash.startsWith("#sec-")) {
-      const el = document.getElementById(location.hash.slice(1));
+    const want = window.App.pendingScroll || (location.hash.startsWith("#sec-") ? location.hash.slice(1) : "");
+    window.App.pendingScroll = null;
+    if (want) {
+      const el = document.getElementById(want);
       if (el) setTimeout(() => el.scrollIntoView(), 50);
+      else if (!isCv && allSecs.some((x) => CV_TYPES.includes(x.type) && "sec-" + x.id === want)) {
+        // old link to a CV section: open the CV page at that section
+        window.App.pendingScroll = want;
+        location.replace("#/cv");
+      }
     }
   }
 
@@ -352,15 +381,6 @@
       const open = nav.classList.toggle("open");
       e.currentTarget.setAttribute("aria-expanded", String(open));
     });
-    const drop = root.querySelector(".navdrop");
-    if (drop) {
-      const dbtn = drop.querySelector(".navdrop-btn");
-      const setOpen = (v) => { drop.classList.toggle("open", v); dbtn.setAttribute("aria-expanded", String(v)); };
-      dbtn.addEventListener("click", (e) => { e.stopPropagation(); setOpen(!drop.classList.contains("open")); });
-      drop.querySelectorAll("a").forEach((a) => a.addEventListener("click", () => setOpen(false)));
-      drop.addEventListener("keydown", (e) => { if (e.key === "Escape") { setOpen(false); dbtn.focus(); } });
-      document.onclick = (e) => { if (!e.target.closest(".navdrop")) setOpen(false); };
-    }
     root.querySelectorAll("#mainnav a").forEach((a) => a.addEventListener("click", () => root.querySelector("#mainnav").classList.remove("open")));
 
     root.onclick = async (e) => {
@@ -372,7 +392,7 @@
       if (act === "copy-email") copy(b.dataset.email);
       if (act === "copy-link") copy(location.origin + location.pathname + "#" + b.dataset.id);
       if (act === "share") {
-        const data = { title: document.title, url: location.origin + location.pathname };
+        const data = { title: document.title, url: location.origin + location.pathname + (ctx.page === "cv" ? "#/cv" : "") };
         if (navigator.share) { try { await navigator.share(data); } catch {} } else copy(data.url);
       }
     };
