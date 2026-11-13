@@ -13,6 +13,8 @@ const api = withApi ? (await import("../netlify/functions/api.mjs")).default : n
 const root = path.resolve(new URL("../public", import.meta.url).pathname);
 const types = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".woff2": "font/woff2", ".json": "application/json" };
 export const hookLog = [];
+const formLog = [];
+let formsOn = false;
 
 http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${port}`);
@@ -22,6 +24,14 @@ http.createServer(async (req, res) => {
     const code = url.pathname === "/hook-ok" ? 200 : 500;
     res.writeHead(code, { "content-type": "text/plain", "access-control-allow-origin": "*", "access-control-allow-headers": "content-type" });
     return res.end(req.method === "OPTIONS" ? "" : code === 200 ? "received" : "boom");
+  }
+  // stand-in for Netlify Forms: POST / with form-name=contact is accepted only while switched on
+  if (url.pathname === "/__forms/on" || url.pathname === "/__forms/off") { formsOn = url.pathname.endsWith("on"); res.writeHead(200); return res.end("ok"); }
+  if (url.pathname === "/__forms/log") { res.writeHead(200, { "content-type": "application/json" }); return res.end(JSON.stringify(formLog)); }
+  if (req.method === "POST" && url.pathname === "/") {
+    let body = ""; for await (const c of req) body += c;
+    if (formsOn && /form-name=contact/.test(body)) { formLog.push(Object.fromEntries(new URLSearchParams(body))); res.writeHead(200); return res.end("ok"); }
+    res.writeHead(404); return res.end("not found");
   }
   if (url.pathname === "/__hooklog") { res.writeHead(200, { "content-type": "application/json" }); return res.end(JSON.stringify(hookLog)); }
   if (url.pathname.startsWith("/api/")) {

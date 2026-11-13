@@ -97,7 +97,7 @@ export default async (req, context) => {
       const full = url.searchParams.get("full") === "1";
       if (full && !isAuthed(req)) return json({ error: "unauthorized" }, 401);
       const entry = await store("content").getWithMetadata("current", { type: "json" });
-      if (entry === null) return json({ error: "not_found" }, 404);
+      if (entry === null) return json({ content: null, updatedAt: null }); // nothing published yet: the page falls back to its built-in content
       return json({ content: full ? entry.data : toPublic(entry.data), updatedAt: entry.metadata?.updatedAt || null });
     }
 
@@ -120,6 +120,18 @@ export default async (req, context) => {
       const updatedAt = new Date().toISOString();
       await s.setJSON("current", body.content, { metadata: { updatedAt } });
       return json({ ok: true, updatedAt });
+    }
+
+    // public list of the certificates (visible items only), optional ?tab=academic|pm|power|control and ?q=text
+    if (path === "certificates" && method === "GET") {
+      const entry = await store("content").get("current", { type: "json" });
+      if (entry === null) return json({ count: 0, certificates: [], published: false });
+      const sec = (toPublic(entry).sections || []).find((s) => s.type === "certs");
+      let items = sec ? sec.items : [];
+      const tab = url.searchParams.get("tab"), q = (url.searchParams.get("q") || "").trim().toLowerCase();
+      if (tab) items = items.filter((i) => i.tab === tab);
+      if (q) items = items.filter((i) => JSON.stringify(i).toLowerCase().includes(q));
+      return json({ count: items.length, certificates: items }, 200, { "cache-control": "public, max-age=60" });
     }
 
     if (path === "versions" && method === "GET") {
@@ -182,6 +194,7 @@ export default async (req, context) => {
         test: false,
         name: clean(body.name, 120),
         contact: clean(body.contact, 160),
+        company: clean(body.company, 160),
         subject: clean(body.subject, 200),
         message: clean(body.message, 4000),
         lang: clean(body.lang, 5),

@@ -6,7 +6,7 @@
       appName: "اللوحة المهنية — م. أحمد زهران",
       nav_home: "الرئيسية", nav_contact: "تواصل", admin: "لوحة الإدارة", publicView: "الصفحة العامة",
       langToggle: "English", share: "مشاركة", print: "طباعة / PDF", copied: "تم النسخ", copyLink: "نسخ رابط القسم",
-      cv: "السيرة الذاتية", navCv: "السيرة الذاتية", navHome: "الرئيسية", navPlatforms: "المنصات", navServices: "خدماتي", navAbout: "عني", startProject: "ابدأ مشروعك",
+      cv: "السيرة الذاتية", navCv: "السيرة الذاتية", cvNavValue: "القيمة المضافة", cvNavExp: "الخبرات", cvNavProjects: "المشاريع", cvNavCerts: "الشهادات", contactMe: "تواصل معي", scene_cable: "كابلات وحفر", scene_factory: "مصنع وخط إنتاج", ctab_academic: "المؤهلات والخبرة", ctab_pm: "الإدارة والسلامة والذكاء الاصطناعي", ctab_power: "هندسة القوى والكابلات", ctab_control: "التحكم والبرمجيات والتدريب التأسيسي", icon_plan: "تخطيط", icon_lead: "قيادة", icon_control: "ضبط", icon_digital: "رقمي", navHome: "الرئيسية", navPlatforms: "المنصات", navServices: "خدماتي", navAbout: "عني", startProject: "ابدأ مشروعك",
       explore: "استكشف المنصات", discuss: "ناقش مشروعك معي", howItWorks: "شاهد كيف تعمل", copyUrl: "نسخ الرابط", linkCopied: "تم نسخ رابط المنصة",
       shared: "تمت المشاركة", forWho: "لمن هذه المنصة؟", theProblem: "المشكلة التي تعالجها", canDo: "ماذا تستطيع إنجازه؟", howSteps: "ثلاث خطوات للاستخدام",
       demo: "عرض توضيحي", demoNote: "مشهد مبسّط يشرح رحلة الاستخدام، وليس تسجيلًا من المنصة.", play: "تشغيل", pause: "إيقاف مؤقت", replay: "إعادة", step: "الخطوة",
@@ -46,7 +46,7 @@
       appName: "Professional Dashboard — Eng. Ahmed Zahran",
       nav_home: "Home", nav_contact: "Contact", admin: "Admin", publicView: "Public page",
       langToggle: "العربية", share: "Share", print: "Print / PDF", copied: "Copied", copyLink: "Copy section link",
-      cv: "View my CV", navCv: "CV", navHome: "Home", navPlatforms: "Platforms", navServices: "Services", navAbout: "About", startProject: "Start your project",
+      cv: "View my CV", navCv: "CV", cvNavValue: "Value", cvNavExp: "Experience", cvNavProjects: "Projects", cvNavCerts: "Certificates", contactMe: "Contact me", navHome: "Home", navPlatforms: "Platforms", navServices: "Services", navAbout: "About", startProject: "Start your project",
       explore: "Explore the platforms", discuss: "Discuss your project with me", howItWorks: "See how it works", copyUrl: "Copy link", linkCopied: "Platform link copied",
       shared: "Shared", forWho: "Who is this platform for?", theProblem: "The problem it addresses", canDo: "What can you get done?", howSteps: "Three steps to use it",
       demo: "Illustrative demo", demoNote: "A simplified scene explaining the user journey, not a recording of the platform.", play: "Play", pause: "Pause", replay: "Replay", step: "Step",
@@ -134,14 +134,29 @@
 
   const SCHEMAS = {
     experience: { label: "خبرة", fields: [
-      { ...F.title, label: "المسمى الوظيفي" }, { key: "org", kind: "ltext", label: "الجهة" }, { key: "location", kind: "ltext", label: "الموقع" },
+      { ...F.title, label: "المسمى الوظيفي" }, { key: "org", kind: "ltext", label: "جهة التوظيف المباشر" }, { key: "client", kind: "ltext", label: "العميل (إن اختلف عن جهة التوظيف)" }, { key: "location", kind: "ltext", label: "الموقع" },
       F.start, F.end, { key: "current", kind: "bool", label: "حتى الآن" },
+      { key: "evidence", kind: "ltext", label: "التوثيق (مستند أو خطاب يؤكد الفترة)" }, { key: "certRef", kind: "text", label: "معرّف شهادة مرتبطة (مثل cert-service)" },
       { key: "achievements", kind: "llines", label: "الإنجازات (نقطة في كل سطر)" }, F.tools, F.attachment, F.link] },
     projects: { label: "مشروع", fields: [
-      { ...F.title, label: "اسم المشروع" }, F.description, { key: "role", kind: "ltext", label: "الدور" }, F.start, F.end,
-      F.tools, { key: "results", kind: "llines", label: "النتائج (نقطة في كل سطر)" }, F.image, F.attachment, F.link] },
+      { ...F.title, label: "اسم المشروع" }, { key: "kind", kind: "ltext", label: "نوع المشروع" }, { key: "scope", kind: "ltext", label: "النطاق / الجهة" },
+      { key: "challenge", kind: "ltext", label: "التحدي" }, F.description, { key: "role", kind: "ltext", label: "الدور" },
+      { key: "actions", kind: "llines", label: "الإجراءات (واحد في كل سطر)" }, F.start, F.end,
+      F.tools, { key: "results", kind: "llines", label: "المخرجات المثبتة (واحد في كل سطر)" },
+      { key: "scene", kind: "select", label: "الرسم التوضيحي", options: ["grid", "cable", "factory"], prefix: "scene_" }, F.image, F.attachment, F.link] },
     skills: { label: "مجموعة مهارات", fields: [
       { ...F.title, label: "اسم المجموعة" }, { key: "list", kind: "llines", label: "المهارات (مهارة في كل سطر)" }] },
+    value: { label: "قدرة", fields: [
+      { ...F.title, label: "العنوان" }, F.description, { key: "icon", kind: "select", label: "الأيقونة", options: ["plan", "lead", "control", "digital"], prefix: "icon_" }] },
+    certs: { label: "شهادة", fields: [
+      { ...F.title, label: "الاسم الرسمي" }, { key: "issuer", kind: "ltext", label: "الجهة المصدرة" }, { key: "date", kind: "text", label: "التاريخ (كما في الوثيقة)" },
+      { key: "tab", kind: "select", label: "التبويب", options: ["academic", "pm", "power", "control"], prefix: "ctab_" },
+      { key: "docType", kind: "ltext", label: "نوع الوثيقة بدقة (لا تكتب «شهادة معتمدة» إلا لو كانت كذلك)" },
+      { key: "grade", kind: "text", label: "التقدير / الساعات" }, { key: "ref", kind: "text", label: "رقم الشهادة أو الاعتماد المرجعي" },
+      { key: "skills", kind: "llines", label: "المهارات (واحدة في كل سطر)" }, { key: "relevance", kind: "ltextarea", label: "كيف ترتبط باحتياجات الشركة؟" },
+      { key: "example", kind: "ltextarea", label: "مثال تطبيقي محتمل (منفصل عن الخبرة المثبتة)" }, { key: "note", kind: "ltextarea", label: "ملاحظة (اختياري)" },
+      { key: "images", kind: "lines", label: "ملفات المعاينة: أسماء من assets/certs أو روابط (واحد في كل سطر). غطِّ أرقام الهوية قبل الرفع." },
+      { ...F.image, label: "صورة معاينة إضافية (بعد تغطية البيانات الشخصية)" }] },
     services: { label: "خدمة", fields: [
       { ...F.title, label: "اسم الخدمة" }, F.description, { key: "list", kind: "llines", label: "يشمل (نقطة في كل سطر)" }] },
     education: { label: "مؤهل", fields: [

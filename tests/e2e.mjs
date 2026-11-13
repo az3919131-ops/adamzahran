@@ -211,22 +211,230 @@ await test("WhatsApp link uses the international format; mailto link in the cont
   assert(wa.startsWith("https://wa.me/966565324387?text="), wa);
   assert((await page.getAttribute("#sec-contact a[href^='mailto:']", "href")) === "mailto:az3919131@gmail.com", "mailto");
 });
-await test("CV sections are off the home page; the CV page opens from «عني»", async () => {
-  for (const id of ["experience", "projects", "skills", "education", "courses"]) assert(!(await page.$("#sec-" + id)), id + " must not be on the home page");
+const gotoCv = async () => { await page.goto("about:blank"); await page.goto(B + "#/cv"); await page.waitForSelector(".cvx-hero h1"); };
+await test("home: CV sections are not on the home page; «عني» opens the CV page", async () => {
+  for (const id of ["value", "experience", "projects", "skills", "certs", "education", "courses"]) assert(!(await page.$("#sec-" + id)), id + " must not be on the home page");
   await page.click("#about a[href='#/cv']");
-  await page.waitForSelector(".cv-hero");
-  const ids = await page.$$eval("[data-section-block]", (e) => e.map((x) => x.id));
-  assert(ids.join() === "sec-experience,sec-projects,sec-skills,sec-education,sec-courses", ids.join());
-  assert(!(await page.$(".busbar")) && !(await page.$("#sec-contact")) && !(await page.$("#sec-platforms")), "CV page has only CV content");
-  await page.click("#mainnav a[href='#sec-skills']");
-  assert(await page.isVisible(".cv-hero"), "in-page anchor stays on the CV page");
-  await page.click(".back-link");
-  await page.waitForSelector(".intro h1");
+  await page.waitForSelector(".cvx-hero");
+  await page.goto(B + "#/"); await page.waitForSelector(".intro h1");
+});
+await test("CV hero: headline, roles, three buttons, portrait, 3D stage (WebGL, or the static fallback)", async () => {
+  await gotoCv();
+  assert((await page.textContent(".cvx-hero h1")).trim() === "أقود التنفيذ برؤية واضحة، وأربط التخطيط بواقع المشروع.", "headline");
+  const roles = await page.textContent(".cvx-hero-text");
+  assert(roles.includes("مدير مشاريع | إدارة وتنفيذ وتخطيط مشاريع العقد الموحد بالمملكة") && roles.includes("مهندس اختبارات كابلات / شركة الكهرباء بمصر") && roles.includes("مهندس قوى كهربائية ومصمم مواقع ومنصات رقمية"), "roles");
+  assert((await page.textContent(".cvx-lead")).includes("تصميم أدوات رقمية تساعد على تنظيم المعلومات ودعم القرار"), "lead");
+  const btns = await page.$$eval(".cvx-actions .btn", (as) => as.map((a) => a.textContent.trim() + "|" + (a.getAttribute("href") || a.dataset.act)));
+  assert(btns.join() === "تواصل بشأن فرصة عمل|#sec-contact,استعرض خبراتي|#sec-experience,تحميل / طباعة السيرة الذاتية|print", btns.join());
+  assert((await page.getAttribute(".cvx-portrait img", "src")) === "https://ahmedzahran12.netlify.app/ahmed.jpg", "original portrait");
+  await page.waitForFunction(() => ["webgl", "static"].includes(document.querySelector("[data-cv-stage]").dataset.mode), null, { timeout: 15000 });
+  const mode = await page.$eval("[data-cv-stage]", (e) => e.dataset.mode);
+  if (mode === "webgl") assert(await page.$("[data-cv-canvas] canvas"), "canvas exists in webgl mode");
+  else assert(await page.$("[data-cv-canvas] svg"), "static fallback drawn");
+  assert((await page.$$eval(".cvx-hero-text *", (n) => n.filter((x) => x.tagName === "CANVAS" || x.tagName === "IMG").length)) === 0, "text is plain HTML, not inside images");
+  console.log("  (3D stage mode: " + mode + ")");
+});
+await test("CV nav: الرئيسية — القيمة المضافة — الخبرات — المشاريع — الشهادات — المنصات — تواصل; anchors keep the page", async () => {
+  const nav = await page.$$eval("#mainnav > a", (as) => as.map((a) => a.textContent.trim() + "|" + a.getAttribute("href")));
+  assert(nav.join() === "الرئيسية|#/,القيمة المضافة|#sec-value,الخبرات|#sec-experience,المشاريع|#sec-projects,الشهادات|#sec-certs,المنصات|#sec-platforms,تواصل|#sec-contact", nav.join());
+  await page.click("#mainnav a[href='#sec-certs']");
+  assert(await page.isVisible(".cvx-hero") || (await page.$(".cvx-hero")), "still the CV page");
+  assert(await page.isVisible("#sec-certs h2"), "scrolled to certificates");
+  assert((await page.getAttribute(".topbar", "class")).includes("topbar"), "sticky bar");
+  assert((await page.$eval(".topbar", (e) => getComputedStyle(e).position)) === "sticky", "navbar is sticky");
+});
+await test("CV value: four capabilities, no promises of results", async () => {
+  const t = await page.$$eval("#sec-value .cvx-vcard h3", (h) => h.map((x) => x.textContent.trim()));
+  assert(t.join("|") === "التخطيط والمتابعة|قيادة التنفيذ|ضبط المشروع|تطوير العمل رقميًا", t.join("|"));
+  assert((await page.textContent("#sec-value")).includes("دون وعود بنتائج محددة"), "no promises note");
+});
+await test("CV experience: employer vs client, documented dates, energy timeline fills and lights nodes on scroll", async () => {
+  const jobs = await page.$$eval("#sec-experience .cvx-job", (js) => js.map((j) => ({ h: j.querySelector("h3").textContent.trim(), who: [...j.querySelectorAll(".cvx-who div")].map((d) => d.querySelector("dt").textContent.trim() + ":" + d.querySelector("dd").textContent.trim()), period: j.querySelector(".cvx-period").textContent.trim(), ev: (j.querySelector(".cvx-evidence") || {}).textContent || "" })));
+  assert(jobs.length === 2, "two jobs");
+  assert(jobs[0].period === "يناير 2021 — حتى الآن" && jobs[1].period === "يناير 2013 — يناير 2021", jobs.map((j) => j.period).join(" / "));
+  const direct = jobs[0].who.find((x) => x.startsWith("جهة التوظيف المباشر")), client = jobs[0].who.find((x) => x.startsWith("العميل"));
+  assert(direct.includes("ناصر مانع وبران وشركاه") && !direct.includes("الشركة السعودية للكهرباء —") && client.includes("الشركة السعودية للكهرباء") && client.includes("ليست جهة التوظيف المباشر") || client.includes("وليست جهة التوظيف المباشر"), "employer/client distinction: " + direct + " | " + client);
+  assert(jobs[0].ev.includes("15/10/2025") && jobs[0].ev.includes("31/12/2026") && jobs[0].ev.includes("15/01/2021 – 16/01/2023"), "evidence states both the letter and the Qiwa dates");
+  assert(jobs[1].ev.includes("27/01/2013") && jobs[1].ev.includes("01/07/2014"), "Egyptian dates");
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+  await page.waitForTimeout(150);
+  const p0 = await page.$eval("[data-energy]", (e) => parseFloat(e.style.getPropertyValue("--p") || "0"));
+  await page.evaluate(() => { const tl = document.querySelector("[data-energy]"); window.scrollTo({ top: tl.getBoundingClientRect().top + window.scrollY - 120, behavior: "instant" }); });
+  await page.waitForTimeout(250);
+  const p1 = await page.$eval("[data-energy]", (e) => parseFloat(e.style.getPropertyValue("--p")));
+  await page.evaluate(() => { const tl = document.querySelector("[data-energy]"); window.scrollTo({ top: tl.getBoundingClientRect().top + window.scrollY + tl.offsetHeight - window.innerHeight * 0.3, behavior: "instant" }); });
+  await page.waitForTimeout(250);
+  const p2 = await page.$eval("[data-energy]", (e) => parseFloat(e.style.getPropertyValue("--p")));
+  const lit = await page.$$eval("#sec-experience .cvx-job.lit", (e) => e.length);
+  assert(p0 === 0 && p1 > p0 && p2 > p1 && p2 > 0.85 && lit === 2, `energy progress ${p0} → ${p1} → ${p2}, lit ${lit}`);
+  const btn = await page.$eval("#sec-experience [data-cert-open]", (b) => b.dataset.certOpen);
+  assert(btn === "cert-service", "documents button points to the service certificate");
+});
+await test("CV projects: three case studies with the required structure and labelled illustrations", async () => {
+  const cases = await page.$$eval("#sec-projects .cvx-case", (cs) => cs.map((c) => ({ h: c.querySelector("h3").textContent.trim(), dts: [...c.querySelectorAll("dt")].map((d) => d.textContent.trim()), ill: c.querySelector(".cvx-ill").textContent.trim(), svg: !!c.querySelector(".cvx-case-art svg") })));
+  assert(cases.length === 3 && cases.every((c) => c.ill === "رسم توضيحي" && c.svg), "three illustrated cases");
+  for (const c of cases) for (const dt of ["نوع المشروع", "التحدي", "دوري", "الإجراءات", "المخرجات المثبتة"]) assert(c.dts.includes(dt), c.h + " missing " + dt);
+  const txt = await page.textContent("#sec-projects");
+  for (const w of ["الأخدود", "الغويلا", "الطريق الدائري الأوسطي", "FLSmidth", "مصنع أسمنت الرملية", "تقدير امتياز"]) assert(txt.includes(w), "project text missing " + w);
+});
+await test("CV certificates: four categories with counts, live search across categories, items without a scan say so", async () => {
+  const tabs = await page.$$eval("[data-cert-tab]", (b) => b.map((x) => x.dataset.certTab + ":" + x.querySelector(".n").textContent));
+  assert(tabs.join() === "academic:4,pm:5,power:11,control:8", tabs.join());
+  assert((await page.$$eval("[data-cert]:not([hidden])", (e) => e.length)) === 4, "first tab shows 4");
+  await page.click("[data-cert-tab=power]");
+  assert((await page.$$eval("[data-cert]:not([hidden])", (e) => e.length)) === 11 && (await page.getAttribute("[data-cert-tab=power]", "aria-selected")) === "true", "tab 3 shows 11");
+  await page.fill("[data-cert-q]", "SCADA");
+  const hits = await page.$$eval("[data-cert]:not([hidden])", (e) => e.map((x) => x.dataset.cert));
+  assert(hits.includes("cert-scada") && hits.length >= 1 && hits.every((h) => h !== "cert-bsc"), "search across tabs: " + hits.join());
+  assert((await page.textContent("[data-cert-status]")).includes("نتيجة"), "result count announced");
+  await page.fill("[data-cert-q]", "zzzz-no-match");
+  assert(await page.isVisible("[data-cert-empty]"), "empty state");
+  await page.fill("[data-cert-q]", "");
+  await page.click("[data-cert-tab=academic]");
+  const nodoc = await page.$$eval("[data-cert=cert-bsc] .cvx-nodoc, [data-cert=cert-syndicate] .cvx-nodoc", (e) => e.length);
+  assert(nodoc === 2, "no fake previews for items without a scan");
+  const withDoc = await page.$$eval("[data-cert] .cvx-thumb img", (i) => i.length);
+  assert(withDoc === 4, "only the four real documents have previews, got " + withDoc);
+});
+await test("CV certificates: 3D tilt and glare react to the pointer (and reset on leave)", async () => {
+  const card = await page.$(".cvx-vcard");
+  await card.scrollIntoViewIfNeeded();
+  const box = await card.boundingBox();
+  await page.mouse.move(box.x + box.width * 0.85, box.y + box.height * 0.2);
+  await page.mouse.move(box.x + box.width * 0.9, box.y + box.height * 0.15);
+  await page.waitForTimeout(150);
+  const during = await card.evaluate((e) => [e.style.getPropertyValue("--ry"), e.style.getPropertyValue("--gx"), e.classList.contains("is-tilting")]);
+  assert(parseFloat(during[0]) !== 0 && during[1].endsWith("%") && during[2], "tilt vars " + during.join());
+  await page.mouse.move(2, 2);
+  await page.waitForTimeout(150);
+  assert((await card.evaluate((e) => e.style.getPropertyValue("--ry"))) === "0deg", "reset on leave");
+});
+await test("CV certificates: viewer shows the covered image, zooms, navigates, closes with Escape and returns focus", async () => {
+  await page.click("[data-cert-tab=pm]");
+  await page.click("[data-cert=cert-pmp-prep] .cvx-thumb");
+  await page.waitForSelector("#cert-dlg[open]");
+  const src = await page.getAttribute("#cert-dlg [data-zoom-img]", "src");
+  assert(src === "assets/certs/pmp-prep-course.jpg", src);
+  assert((await page.$eval("#cert-dlg [data-zoom-img]", async (i) => { await i.decode().catch(() => {}); return i.naturalWidth; })) === 1600, "image loads");
+  const txt = await page.textContent("#cert-dlg");
+  for (const w of ["ES-PMP-2898", "ليست اعتماد PMP النهائي", "35 PDUs", "كيف ترتبط باحتياجات الشركة؟", "مثال تطبيقي محتمل — منفصل عن الخبرة المثبتة", "غُطّيت أرقام الهوية"]) assert(txt.includes(w), "viewer missing: " + w);
+  assert(await page.evaluate(() => document.activeElement.matches("[data-cdlg-close]")), "focus moves in");
+  await page.click("#cert-dlg [data-zoom=in]");
+  assert((await page.$eval("#cert-dlg [data-stage]", (e) => e.style.getPropertyValue("--z"))) === "1.5", "zoomed");
+  const t1 = await page.textContent("#cdlg-title");
+  await page.click("#cert-dlg [data-cdlg-nav=next]");
+  assert((await page.textContent("#cdlg-title")) !== t1, "next item");
+  await page.keyboard.press("ArrowLeft");
+  assert((await page.textContent("#cdlg-title")).trim() !== "", "keyboard navigation works");
+  await page.keyboard.press("Escape");
+  await page.waitForSelector("#cert-dlg:not([open])", { state: "attached" });
+  assert(await page.evaluate(() => document.activeElement.closest("[data-cert]") !== null), "focus returned to the card that opened it");
+  // two documents on one certificate
+  await page.click("[data-cert-tab=academic]");
+  await page.click("[data-cert=cert-service] .cvx-thumb");
+  await page.waitForSelector("#cert-dlg[open]");
+  assert((await page.$$("#cert-dlg [data-img]")).length === 2, "service certificate + company letter");
+  await page.click("#cert-dlg [data-img='1']");
+  assert((await page.getAttribute("#cert-dlg [data-zoom-img]", "src")) === "assets/certs/company-letter-2025.jpg", "second document");
+  await page.keyboard.press("Escape");
+  // opened from the experience card
+  await page.click("#sec-experience [data-cert-open]");
+  await page.waitForSelector("#cert-dlg[open]");
+  assert((await page.textContent("#cdlg-title")).includes("شهادة الخدمة"), "experience button opens its certificate");
+  await page.keyboard.press("Escape");
+});
+await test("privacy: no ID / iqama numbers, birth date or military remarks in the page, the scripts or the image folder", async () => {
+  const text = await page.evaluate(() => document.body.innerText + document.documentElement.innerHTML);
+  for (const bad of ["2497272811", "1989/01/12", "1989", "القوات المسلحة", "الخدمة العسكرية", "خدمة عسكرية", "تجنيد", "military"]) assert(!text.includes(bad), "page contains: " + bad);
+  const fs = await import("node:fs");
+  const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(d + "/" + e.name) : [d + "/" + e.name]));
+  const files = walk("public");
+  assert(!files.some((f) => /\.pdf$/i.test(f)), "no PDF files are published");
+  for (const f of files.filter((x) => /\.(js|html|css|json)$/.test(x) && !/vendor\//.test(x))) {
+    const body = fs.readFileSync(f, "utf8");
+    for (const bad of ["2497272811", "1989/01/12", "القوات المسلحة", "الخدمة العسكرية", "خدمة عسكرية"]) assert(!body.includes(bad), f + " contains " + bad);
+  }
+  const certs = fs.readdirSync("public/assets/certs");
+  assert(certs.every((f) => /\.jpg$/.test(f)) && certs.length === 10, "only redacted JPEG previews: " + certs.join());
+});
+await test("CV platforms: contractors platform first, one-click visit link, details dialog still works", async () => {
+  const titles = await page.$$eval("#sec-platforms .pf h3", (h) => h.map((x) => x.textContent.trim()));
+  assert(titles.join("|") === "التزام لإدارة أوامر العمل ومشاريع الكهرباء|التزام للتدريب|مجسّد|نور فيو مدينتي|بوابة الأمن", titles.join("|"));
+  assert((await page.textContent("#sec-platforms h2")).trim() === "من خبرة العمل إلى حلول رقمية", "section title");
+  const visit = await page.$$eval("#sec-platforms [data-pf-visit]", (as) => as.map((a) => [a.href, a.target, a.textContent.trim()]));
+  assert(visit.length === 5 && visit.every((v) => v[1] === "_blank" && v[2] === "زيارة المنصة") && visit[0][0] === "https://iltizam-najran.netlify.app/", JSON.stringify(visit));
+  await page.click("#sec-platforms .pf >> nth=0 >> [data-pf-open]");
+  await page.waitForSelector("#pf-dlg[open]");
+  assert((await page.textContent("#pfm-title")).includes("التزام"), "dialog opens");
+  await page.keyboard.press("Escape");
+  await page.waitForSelector("#pf-dlg:not([open])", { state: "attached" });
+});
+await test("CV about + contact: approved text, both numbers, and the form fields", async () => {
+  assert((await page.textContent("#about")).includes("أنا المهندس أحمد زهران، مدير مشاريع متخصص في إدارة التنفيذ والتخطيط والمتابعة"), "about text");
+  assert((await page.textContent("#sec-contact h2")).trim() === "لنتحدث عن احتياجات مشروعك وفريقك", "contact title");
+  assert((await page.textContent("#sec-contact .head2")).includes("يسعدني مناقشة الدور ومتطلبات فريقك"), "contact text");
+  const hrefs = await page.$$eval("#sec-contact a", (as) => as.map((a) => a.getAttribute("href")));
+  for (const u of ["mailto:az3919131@gmail.com", "tel:+966565324387", "tel:+966536324462"]) assert(hrefs.includes(u), "missing " + u);
+  assert(hrefs.some((h) => h.startsWith("https://wa.me/966565324387")) && hrefs.some((h) => h.startsWith("https://wa.me/966536324462")), "two WhatsApp links");
+  const fields = await page.$$eval("#contact-form label", (l) => l.map((x) => x.firstChild.textContent.trim()));
+  assert(fields.join("|") === "الاسم|الشركة|رقم الجوال أو البريد|المسمى أو نوع الفرصة|الرسالة", fields.join("|"));
+});
+await test("CV contact: no success message unless a real service accepts the request (Netlify Forms fallback)", async () => {
+  await fetch(`http://localhost:${API}/__forms/off`);
+  const fill = async () => {
+    await page.fill("#contact-form [name=name]", "مسؤول توظيف");
+    await page.fill("#contact-form [name=company]", "شركة اختبار");
+    await page.fill("#contact-form [name=contact]", "hr@example.com");
+    await page.fill("#contact-form [name=subject]", "مدير مشاريع");
+    await page.fill("#contact-form [name=message]", "نود التحدث معك بخصوص دور");
+    await page.click("#contact-form [type=submit]");
+  };
+  await fill();
+  await page.waitForSelector("#form-result.err .btn-wa");
+  assert(!(await page.textContent("#form-result")).includes("تم استلام"), "no fake success when nothing accepted the request");
+  assert(await page.$("#form-result a[href^='mailto:']"), "email alternative shown");
+  await fetch(`http://localhost:${API}/__forms/on`);
+  await fill();
+  await page.waitForSelector("#form-result.ok");
+  const log = await (await fetch(`http://localhost:${API}/__forms/log`)).json();
+  const last = log[log.length - 1];
+  assert(last.name === "مسؤول توظيف" && last.company === "شركة اختبار" && last.subject === "مدير مشاريع" && last["form-name"] === "contact", JSON.stringify(last));
+  await fetch(`http://localhost:${API}/__forms/off`);
+});
+await test("CV print: plain ATS-friendly stylesheet (white, black text, no 3D, every certificate listed)", async () => {
+  await page.emulateMedia({ media: "print" });
+  try {
+  const r = await page.evaluate(() => {
+    const vis = (sel) => [...document.querySelectorAll(sel)].filter((e) => e.getClientRects().length > 0).length;
+    return {
+      bg: getComputedStyle(document.querySelector(".site-cv")).backgroundColor, color: getComputedStyle(document.querySelector(".cvx-card h3")).color,
+      stage: vis(".cvx-stage"), canvas: vis("canvas"), top: vis(".topbar"), thumbs: vis(".cvx-thumb"), certs: vis(".cvx-cert"), jobs: vis(".cvx-job"), form: vis(".contact-form"), dlg: vis("dialog[open]"),
+    };
+  });
+  assert(r.bg === "rgba(0, 0, 0, 0)" || r.bg === "rgb(255, 255, 255)", "background " + r.bg);
+  assert(r.color === "rgb(0, 0, 0)", "text color " + r.color);
+  assert(r.stage === 0 && r.canvas === 0 && r.top === 0 && r.thumbs === 0 && r.form === 0, JSON.stringify(r));
+  assert(r.certs === 28 && r.jobs === 2, `all certificates and both jobs are printed: ${JSON.stringify(r)}`);
+  } finally { await page.emulateMedia({ media: "screen" }); }
+});
+await test("CV reduced motion: timeline is fully lit, no tilt, content complete", async () => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  try {
+  await gotoCv();
+  assert((await page.$$eval(".cvx-job.lit", (e) => e.length)) === 2, "all nodes lit without scrolling");
+  assert((await page.$eval("[data-energy]", (e) => e.style.getPropertyValue("--p"))) === "1.000", "track full");
+  const card = await page.$(".cvx-vcard");
+  const box = await card.boundingBox();
+  await page.mouse.move(box.x + box.width * 0.9, box.y + box.height * 0.2);
+  await page.waitForTimeout(120);
+  assert((await card.evaluate((e) => getComputedStyle(e).transform)) === "none", "no tilt transform");
+  assert((await page.$$("[data-cert]")).length === 28, "all content present");
+  } finally { await page.emulateMedia({ reducedMotion: "no-preference" }); }
 });
 await test("old shared link /#sec-experience opens the CV page", async () => {
   await page.goto("about:blank");
   await page.goto(B + "#sec-experience");
-  await page.waitForSelector(".cv-hero");
+  await page.waitForSelector(".cvx-hero");
   assert(await page.isVisible("#sec-experience"), "lands on the experience section");
   await page.goto(B + "#/"); await page.waitForSelector(".intro h1");
 });
@@ -282,7 +490,7 @@ await test("add an item in each of the six display sections", async () => {
   await addItem("pages", { "title.ar": "صفحتي الاختبارية", url: "https://example.com/mypage" });
   await publish();
   await publicPage();
-  await page.goto(B + "#/cv"); await page.waitForSelector(".cv-hero");
+  await page.goto(B + "#/cv"); await page.waitForSelector(".cvx-hero");
   assert((await page.textContent("#sec-experience")).includes("خبرة اختبارية"), "experience missing item on CV page");
   await publicPage();
   for (const [sec, txt] of [["platforms", "منصة اختبار"], ["youtube", "فيديو اختبار"], ["linkedin", "صفحة شركة اختبار"], ["insurance", "موقع تأمين اختبار"], ["pages", "صفحتي الاختبارية"]]) {
@@ -346,6 +554,58 @@ await test("future-additions item shows publicly only when enabled, with its sta
   const txt = await page.textContent("#sec-future");
   assert(txt.includes("شهادة إدارة المشاريع PMP") && txt.includes("مخطط"), "future item w/ status");
 });
+await test("admin: certificates + CV profile fields are editable, and edits appear on the CV page", async () => {
+  await login();
+  await page.click("[data-tab=profile]");
+  for (const k of ["cvTitle", "cvHeadline", "cvLead", "cvFacts", "cvAbout", "cvContactTitle", "cvContactText"]) assert(await page.$(`#f-profile [name="${k}.ar"]`), "profile field " + k);
+  await gotoSection("certs");
+  assert((await page.$$("#item-list .row")).length === 28, "28 certificates are listed for management");
+  await page.click("#item-list [data-a=edit][data-i='0']");
+  await page.waitForSelector("#f-item");
+  for (const n of ["docType.ar", "issuer.ar", "tab", "grade", "ref", "images", "relevance.ar", "example.ar"]) assert(await page.$(`#f-item [name="${n}"]`), "certificate field " + n);
+  await page.fill('#f-item [name="docType.ar"]', "مؤهل أكاديمي رسمي (معدّل)");
+  await page.click("#f-item [type=submit]");
+  await page.waitForSelector("#dlg:not([open])", { state: "attached" });
+  await gotoSection("certs");
+  await page.click("[data-a=add]");
+  await page.waitForSelector("#f-item");
+  for (const [sel, val] of Object.entries({ "title.ar": "شهادة اختبار الإدارة", "issuer.ar": "جهة اختبار", date: "2026-11", "docType.ar": "شهادة إتمام دورة" })) await page.fill(`#f-item [name="${sel}"]`, val);
+  await page.selectOption('#f-item [name="tab"]', "pm");
+  await page.click("#f-item [type=submit]");
+  await page.waitForSelector("#dlg:not([open])", { state: "attached" });
+  await publish();
+  await gotoCv();
+  await page.click("[data-cert-tab=academic]");
+  assert((await page.textContent("[data-cert=cert-bsc]")).includes("مؤهل أكاديمي رسمي (معدّل)"), "edited document type shows");
+  await page.click("[data-cert-tab=pm]");
+  assert((await page.$$eval("[data-cert]:not([hidden])", (e) => e.length)) === 6 && (await page.textContent("#cert-grid")).includes("شهادة اختبار الإدارة"), "new certificate appears in its tab");
+  assert((await page.$$eval("[data-cert-tab=pm] .n", (e) => e[0].textContent)) === "6", "tab count updates");
+  await page.goto(B + "#/"); await page.waitForSelector(".intro h1");
+});
+await test("API: /api/certificates lists the published certificates, with tab and text filters", async () => {
+  const all = await (await fetch(`http://localhost:${API}/api/certificates`)).json();
+  const pm = await (await fetch(`http://localhost:${API}/api/certificates?tab=pm`)).json();
+  const q = await (await fetch(`http://localhost:${API}/api/certificates?q=scada`)).json();
+  assert(all.count === 29 && pm.count === 6 && q.count >= 1 && q.certificates.every((c) => JSON.stringify(c).toLowerCase().includes("scada")), `counts ${all.count}/${pm.count}/${q.count}`);
+  const raw = JSON.stringify(all);
+  for (const bad of ["2497272811", "1989/01/12", "القوات المسلحة"]) assert(!raw.includes(bad), "API leaks " + bad);
+});
+await test("CV mobile: no horizontal overflow, menu toggle works, viewer is usable on a phone", async () => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await gotoCv();
+  await page.waitForFunction(() => ["webgl", "static"].includes(document.querySelector("[data-cv-stage]").dataset.mode), null, { timeout: 15000 });
+  assert(!(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1)), "horizontal overflow on the CV page");
+  await page.click(".nav-toggle");
+  assert(await page.isVisible("#mainnav a[href='#sec-certs']"), "menu opens on the phone");
+  await page.click("#mainnav a[href='#sec-certs']");
+  await page.click("[data-cert=cert-egypt] .cvx-thumb");
+  await page.waitForSelector("#cert-dlg[open]");
+  assert((await page.isVisible("#cert-dlg [data-cdlg-close]")) && (await page.isVisible("#cert-dlg [data-cdlg-nav=next]")), "viewer controls reachable on a phone");
+  const small = await page.$$eval("#cert-dlg button", (bs) => bs.filter((b) => b.getClientRects().length && b.getBoundingClientRect().height < 40).length);
+  assert(small === 0, small + " viewer buttons are smaller than 40px");
+  await page.keyboard.press("Escape");
+  await page.setViewportSize({ width: 1280, height: 800 });
+});
 await test("hero numbers editable in admin: blank value falls back to the calculated count", async () => {
   await login();
   await page.click("[data-tab=profile]");
@@ -354,7 +614,7 @@ await test("hero numbers editable in admin: blank value falls back to the calcul
   await page.waitForTimeout(600);
   await page.goto(B + "#/preview"); await page.waitForSelector(".preview-bar");
   const s = await page.$$eval(".busbar .stat", (els) => els.map((e) => e.querySelector("span").textContent + "=" + e.querySelector("strong").textContent));
-  assert(s.includes("المشاريع=4") && s.some((x) => x.startsWith("الدورات=")), "auto fallback " + s.join());
+  assert(s.includes("المشاريع=3") && !s.some((x) => x.startsWith("الدورات=")), "auto fallback (and the hidden courses list adds no count) " + s.join());
   await login();
   await page.click("[data-a=discard-draft]");
 });

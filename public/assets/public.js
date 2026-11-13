@@ -18,6 +18,7 @@
     globe: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm-9 9h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>',
     home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M3 11l9-8 9 8 M5 10v10h5v-6h4v6h5V10"/></svg>',
     tri: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>',
+    phone: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M6 3h3.5l1.7 4.4-2.3 1.5a11 11 0 0 0 5.2 5.2l1.5-2.3L21 13.5V17a2 2 0 0 1-2 2A16 16 0 0 1 4 5a2 2 0 0 1 2-2Z"/></svg>',
     pin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M12 21s7-6.3 7-12a7 7 0 0 0-14 0c0 5.7 7 12 7 12Z M12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>',
   };
 
@@ -201,10 +202,10 @@
     const lang = AZ.state.lang;
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
-    document.title = `${loc(c.profile.name)} — ${loc(c.profile.title)}`;
+    document.title = opts.page === "cv" ? `${loc(c.profile.name)} — ${t("navCv")}` : `${loc(c.profile.name)} — ${loc(c.profile.title)}`;
 
     const isCv = opts.page === "cv";
-    const CV_TYPES = ["experience", "projects", "skills", "education", "courses"];
+    const CV_TYPES = ["value", "experience", "projects", "skills", "education", "courses", "certs"];
     const allSecs = visibleSections(c);
     // The CV sections live on their own page (#/cv); the home page shows everything else.
     const secs = allSecs.filter((x) => CV_TYPES.includes(x.type) === isCv);
@@ -218,8 +219,13 @@
     const platSec = secs.find((x) => x.type === "platforms");
     const svcSec = secs.find((x) => x.type === "services");
     const hasPlatforms = !isCv && platSec && Home.realPlatforms(platSec).length > 0;
+    const TT = (ar, en) => (lang === "en" ? en : ar);
+    const hasSec = (type) => allSecs.some((x) => x.type === type);
+    const cvNav = [["#/", "navHome", true], ["#sec-value", "cvNavValue", hasSec("value")], ["#sec-experience", "cvNavExp", hasSec("experience")],
+      ["#sec-projects", "cvNavProjects", hasSec("projects")], ["#sec-certs", "cvNavCerts", hasSec("certs")],
+      ["#sec-platforms", "navPlatforms", hasSec("platforms") && Home.realPlatforms(allSecs.find((x) => x.type === "platforms")).length > 0], ["#sec-contact", "nav_contact", true]];
     const navHTML = isCv
-      ? `<a href="#/">${esc(t("navHome"))}</a>` + secs.map(navLink).join("")
+      ? cvNav.filter((x) => x[2]).map(([h, k]) => `<a href="${h}">${esc(t(k))}</a>`).join("")
       : `<a href="#top">${esc(t("navHome"))}</a>
          ${hasPlatforms ? `<a href="#sec-${esc(platSec.id)}">${esc(t("navPlatforms"))}</a>` : ""}
          ${svcSec ? `<a href="#services">${esc(t("navServices"))}</a>` : ""}
@@ -239,10 +245,10 @@
             ${s.type === "experience" ? `<div class="timeline">${body}</div>` : `<div class="grid grid-${esc(s.type)}">${body}</div>`}
           </div></section>`;
         };
-    const restSecs = secs.filter((x) => x.type !== "platforms" && x.type !== "services");
+    const restSecs = isCv ? [] : secs.filter((x) => x.type !== "platforms" && x.type !== "services");
     const linkOf = (type) => { const sx = allSecs.find((x) => x.type === type); const it = sx && sx.items.find((i) => i.visible !== false && safeUrl(i.url)); return it ? { url: safeUrl(it.url), title: loc(it.title) } : null; };
     const li = linkOf("linkedin"), yt = linkOf("youtube");
-    const startHref = contactBlock ? "#sec-contact" : wa || "#/";
+    const startHref = isCv || contactBlock ? "#sec-contact" : wa || "#/";
 
     root.innerHTML = `<div class="site ${isCv ? "site-cv" : "site-home"}">
       <a class="skip" href="#main">${t("skip")}</a>
@@ -253,33 +259,18 @@
           <button class="btn btn-icon nav-toggle" aria-expanded="false" aria-controls="mainnav" aria-label="${esc(t("menu"))}">☰</button>
           <nav id="mainnav" class="mainnav" aria-label="sections">
             ${navHTML}
-            ${contactBlock ? `<a href="#sec-contact">${esc(t("nav_contact"))}</a>` : ""}
+            ${!isCv && contactBlock ? `<a href="#sec-contact">${esc(t("nav_contact"))}</a>` : ""}
             <button type="button" class="btn btn-small nav-lang" data-act="lang">${esc(t("langToggle"))}</button>
           </nav>
           <div class="top-actions">
             <button class="btn btn-small btn-lang" data-act="lang">${esc(t("langToggle"))}</button>
-            <a class="btn btn-small btn-start" href="${esc(startHref)}"${/^https?:/.test(startHref) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(t("startProject"))}</a>
+            <a class="btn btn-small btn-start" href="${esc(startHref)}"${/^https?:/.test(startHref) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(t(isCv ? "contactMe" : "startProject"))}</a>
           </div>
         </div>
       </header>
 
       <main id="main">
-        ${isCv ? `        <section class="hero cv-hero" id="top">
-          <div class="hero-grid" aria-hidden="true"></div>
-          <div class="wrap cv-hero-in">
-            <a class="back-link" href="#/">${ICON.home}<span>${esc(t("backHome"))}</span></a>
-            <h1>${esc(t("navCv"))}</h1>
-            <p class="role">${esc(loc(c.profile.name))}${loc(c.profile.title) ? ` · ${esc(loc(c.profile.title))}` : ""}</p>
-            <p class="bio">${esc(t("cvPageSub"))}</p>
-            <div class="hero-actions">
-              ${wa ? `<a class="btn btn-wa" href="${esc(wa)}" target="_blank" rel="noopener noreferrer">${ICON.wa}<span>${esc(t("whatsapp"))}</span></a>` : ""}
-              ${email ? `<a class="btn btn-gold" href="mailto:${esc(email)}">${ICON.mail}<span>${esc(t("emailMe"))}</span></a>` : ""}
-              <button class="btn btn-ghost-light no-print" data-act="print">${ICON.print}<span>${esc(t("print"))}</span></button>
-            </div>
-          </div>
-        </section>
-
-` : `
+        ${isCv ? CV.main(c, { allSecs, wa, email}) : `
         ${Home.hero(c, { stats, wa })}
         ${hasPlatforms ? Home.platforms(platSec, c) : ""}
         ${Home.services(svcSec, platSec, c, { wa })}
@@ -328,7 +319,7 @@
     </div>`;
 
     bind(root, c, { wa, email, page: opts.page });
-    if (!isCv) Home.bind(root, c);
+    if (isCv) CV.bind(root, c); else Home.bind(root, c);
     const want = window.App.pendingScroll || (location.hash.startsWith("#sec-") ? location.hash.slice(1) : "");
     window.App.pendingScroll = null;
     if (want) {

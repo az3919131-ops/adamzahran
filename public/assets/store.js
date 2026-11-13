@@ -86,6 +86,7 @@
       out.version = 8;
     }
     if ((out.version || 1) < 9) window.V9.apply(out);
+    if ((out.version || 1) < 10) window.V10.apply(out);
     out.stats = { ...seed.stats, ...(out.stats || {}) };
     out.sections.forEach((s) => { s.items = Array.isArray(s.items) ? s.items : []; if (s.visible === undefined) s.visible = true; });
     return out;
@@ -120,7 +121,7 @@
       if (this.mode === "server") {
         try {
           const r = await fetch("/api/content", { cache: "no-store" });
-          if (r.ok) return normalize((await r.json()).content);
+          if (r.ok) { const j = await r.json(); if (j.content) return normalize(j.content); }
         } catch {}
         return normalize(null);
       }
@@ -240,13 +241,24 @@
       return { ok: res.ok, lastTest };
     },
 
+    // Netlify Forms: the form is declared in index.html, so this POST is stored by Netlify. Success only when Netlify accepts it.
+    async netlifyForm(msg) {
+      try {
+        const body = new URLSearchParams({ "form-name": "contact", name: msg.name || "", company: msg.company || "", contact: msg.contact || "", subject: msg.subject || "", message: msg.message || "", lang: msg.lang || "", page: location.hash || "#/", website: "" });
+        const r = await fetch("/", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body });
+        return r.ok;
+      } catch { return false; }
+    },
     async sendContact(msg) {
       if (this.mode === "server") {
+        let viaHook = false;
         try {
           const r = await fetch("/api/contact", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(msg) });
           const j = await r.json().catch(() => ({}));
-          return { ok: r.ok && j.ok === true };
-        } catch { return { ok: false }; }
+          viaHook = r.ok && j.ok === true;
+        } catch {}
+        if (viaHook) return { ok: true, via: "webhook" };
+        return (await this.netlifyForm(msg)) ? { ok: true, via: "netlify-forms" } : { ok: false };
       }
       const s = LS.get("az_settings", { webhookUrl: "" });
       const payload = { type: "contact_message", test: false, ...msg, submittedAt: new Date().toISOString(), source: location.origin };

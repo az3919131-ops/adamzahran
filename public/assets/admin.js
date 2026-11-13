@@ -207,6 +207,16 @@
         ${lInput("experienceSummary", pr.experienceSummary, "ملخص الخبرة", true, 2)}
         ${lInput("bio", pr.bio, "النص الداعم تحت العنوان الرئيسي", true, 4)}
         ${lInput("about", pr.about, "نبذة «عني» (فقرة في كل سطرين)", true, 9)}
+        <fieldset class="tags-pick"><legend>صفحة السيرة الذاتية (#/cv)</legend>
+          ${lInput("cvTitle", pr.cvTitle, "المسمى الأساسي (سطران)", true, 3)}
+          ${lInput("cvSubtitle", pr.cvSubtitle, "المسمى الداعم")}
+          ${lInput("cvHeadline", pr.cvHeadline, "العنوان الرئيسي")}
+          ${lInput("cvLead", pr.cvLead, "النص الداعم", true, 3)}
+          ${lInput("cvFacts", pr.cvFacts, "الملخص التنفيذي (سطر لكل عنصر بصيغة: العنوان|القيمة)", true, 6)}
+          ${lInput("cvAbout", pr.cvAbout, "النبذة المهنية", true, 9)}
+          ${lInput("cvContactTitle", pr.cvContactTitle, "عنوان قسم التواصل")}
+          ${lInput("cvContactText", pr.cvContactText, "نص قسم التواصل", true, 3)}
+        </fieldset>
         ${fieldHTML({ key: "photo", kind: "image", label: "الصورة الشخصية (اختياري)" }, pr.photo)}
         ${fieldHTML({ key: "cvUrl", kind: "url", label: "رابط السيرة الذاتية (يظهر كزر في أعلى الصفحة)" }, pr.cvUrl)}
         <fieldset class="tags-pick stats-edit"><legend>أرقام الواجهة</legend>
@@ -219,7 +229,7 @@
     const f = p.querySelector("#f-profile");
     bindUploads(f);
     f.addEventListener("input", () => {
-      for (const k of ["name", "title", "headline", "location", "experienceSummary", "bio", "about"]) pr[k] = { ar: f[`${k}.ar`].value, en: f[`${k}.en`].value };
+      for (const k of ["name", "title", "headline", "location", "experienceSummary", "bio", "about", "cvTitle", "cvSubtitle", "cvHeadline", "cvLead", "cvFacts", "cvAbout", "cvContactTitle", "cvContactText"]) pr[k] = { ar: f[`${k}.ar`].value, en: f[`${k}.en`].value };
       pr.photo = f.photo.value.trim();
       pr.cvUrl = f.cvUrl.value.trim();
       S.content.stats = Object.fromEntries(["years", "projects", "courses", "platforms"].map((k) => [k, { show: f[`st_${k}_v`].checked, value: f[`st_${k}`].value.trim() }]));
@@ -369,6 +379,7 @@
       case "ltext": return lInput(f.key, v, f.label, false, 0, f.required);
       case "ltextarea": return lInput(f.key, v, f.label, true, 3, f.required);
       case "llines": return lInput(f.key, v, f.label, true, 6, f.required);
+      case "lines": return `<label>${esc(f.label)}${req}<textarea name="${f.key}" rows="3" dir="ltr">${esc(v || "")}</textarea></label>`;
       case "bool": return `<label class="switch inline"><input type="checkbox" name="${f.key}" ${v ? "checked" : ""}><span>${esc(f.label)}</span></label>`;
       case "select": return `<label>${esc(f.label)}${req}<select name="${f.key}">${f.options.map((o) => `<option value="${o}" ${v === o ? "selected" : ""}>${esc(AR[f.prefix + o] || o)}</option>`).join("")}</select>${help}</label>`;
       case "url": return `<label>${esc(f.label)}${req}<input type="url" name="${f.key}" value="${esc(v || "")}" dir="ltr" placeholder="https://" ${f.required ? "required" : ""}></label>`;
@@ -387,6 +398,7 @@
     switch (f.kind) {
       case "ltext": case "ltextarea": case "llines": return { ar: form[`${f.key}.ar`].value.trim(), en: form[`${f.key}.en`].value.trim() };
       case "bool": return form[f.key].checked;
+      case "lines": return form[f.key].value.trim();
       case "file": { const url = form[`${f.key}.url`].value.trim(); return url ? { url, name: form[`${f.key}.name`].value.trim() } : null; }
       default: return form[f.key].value.trim();
     }
@@ -476,6 +488,8 @@
           <label>رقم واتساب (محلي)<input name="wa" value="${esc(c.whatsapp?.value || "")}" dir="ltr" inputmode="tel"></label>
           <label>رمز الدولة<input name="cc" value="${esc(c.whatsapp?.country || "966")}" dir="ltr" inputmode="numeric"></label>
           <label class="switch inline"><input type="checkbox" name="wa_v" ${c.whatsapp?.visible !== false ? "checked" : ""}><span>إظهار واتساب</span></label>
+          <label>رقم هاتف / واتساب ثانٍ (محلي)<input name="wa2" value="${esc(c.phone2?.value || "")}" dir="ltr" inputmode="tel"></label>
+          <label class="switch inline"><input type="checkbox" name="wa2_v" ${c.phone2?.visible !== false ? "checked" : ""}><span>إظهار الرقم الثاني</span></label>
           <label class="switch inline"><input type="checkbox" name="form_v" ${c.formVisible !== false ? "checked" : ""}><span>إظهار نموذج التواصل</span></label>
         </div>
         ${lInput("waMsg", c.whatsappMessage, "رسالة واتساب الجاهزة", true, 2)}
@@ -503,6 +517,7 @@
       c.name = { value: f.name.value.trim(), visible: f.name_v.checked };
       c.email = { value: f.email.value.trim(), visible: f.email_v.checked };
       c.whatsapp = { value: f.wa.value.trim(), country: f.cc.value.trim() || "966", visible: f.wa_v.checked };
+      c.phone2 = { value: f.wa2.value.trim(), country: f.cc.value.trim() || "966", visible: f.wa2_v.checked };
       c.formVisible = f.form_v.checked;
       c.whatsappMessage = { ar: f["waMsg.ar"].value, en: f["waMsg.en"].value };
       const link = AZ.waLink(c, c.whatsappMessage.ar);

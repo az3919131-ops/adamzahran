@@ -114,11 +114,15 @@
   }
 
   /* ---------- platforms ---------- */
-  function platforms(sec, c) {
-    const items = realPlatforms(sec);
+  function platforms(sec, c, opts = {}) {
+    let items = realPlatforms(sec);
+    if (opts.order) {
+      const rank = (it) => { const k = opts.order.findIndex((h) => hostLabel(it.url) === h); return k < 0 ? 99 : k; };
+      items = items.slice().sort((a, b) => rank(a) - rank(b));
+    }
     if (!items.length) return "";
     return `<section class="section sec-platforms" id="sec-${esc(sec.id)}" data-section-block="${esc(sec.id)}"><div class="wrap">
-      <header class="head2"><h2>${esc(loc(sec.title))}</h2><p>${esc(t("platformsSub"))}</p></header>
+      <header class="head2"><h2>${esc(opts.title || loc(sec.title))}</h2><p>${esc(opts.sub || t("platformsSub"))}</p></header>
       <nav class="pf-index" aria-label="${esc(t("navPlatforms"))}">${items.map((it) => `<a href="#pf-${esc(it.id)}"><i class="dot status-${esc(it.status || "none")}"></i>${esc(loc(it.title))}</a>`).join("")}</nav>
       ${items.map((it, i) => {
         const shot = safeUrl(it.image), ben = lines(it.benefits);
@@ -142,6 +146,7 @@
             ${loc(it.note) ? `<p class="pf-note">${esc(loc(it.note))}</p>` : ""}
             <div class="pf-actions">
               <button type="button" class="btn btn-blue" data-pf-open="${esc(it.id)}">${ICON().tri}<span>${esc(t("howItWorks"))}</span></button>
+              ${opts.visit && safeUrl(it.url) ? `<a class="btn btn-gold" data-pf-visit href="${esc(safeUrl(it.url))}" target="_blank" rel="noopener noreferrer">${ICON().ext}<span>${esc(opts.visitLabel || "")}</span></a>` : ""}
               <button type="button" class="btn btn-line" data-pf-share="${esc(it.id)}">${ICON().share}<span>${esc(t("share"))}</span></button>
               <button type="button" class="btn btn-line" data-pf-copy="${esc(it.id)}">${ICON().copy}<span>${esc(t("copyUrl"))}</span></button>
             </div>
@@ -346,7 +351,8 @@
       });
       dlg.addEventListener("close", () => { if (player) player.pause(); player = null; if (opener && document.contains(opener)) opener.focus(); opener = null; });
     }
-    root.addEventListener("click", async (e) => {
+    if (root._pfClick) root.removeEventListener("click", root._pfClick);
+    root._pfClick = async (e) => {
       const cp = e.target.closest("[data-pf-copy]"), sh = e.target.closest("[data-pf-share]");
       if (cp) { const it = platformById(c, cp.dataset.pfCopy); if (it) copyText(safeUrl(it.url), t("linkCopied")); }
       if (sh) {
@@ -355,7 +361,8 @@
         if (navigator.share) { try { await navigator.share(data); PublicView.toast(t("shared")); } catch {} }
         else copyText(data.url, t("linkCopied"));
       }
-    });
+    };
+    root.addEventListener("click", root._pfClick);
 
     // Run scene animations only while they are on screen.
     const anims = [...root.querySelectorAll("[data-anim]")];
@@ -382,5 +389,5 @@
     }
   }
 
-  window.Home = { hero, platforms, services, about, process, bind, realPlatforms, STEP_MS };
+  window.Home = { hero, platforms, services, about, process, bind, realPlatforms, STEP_MS, scene, iso: { P, poly, box, flat, line, svg, ground, GOLD, BLUE, STEEL, PAPER }, copyText };
 })();
