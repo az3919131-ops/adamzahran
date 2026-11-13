@@ -233,6 +233,20 @@
     const usedTags = c.tags.filter((tg) => allItems.some(({ i }) => (i.tags || []).includes(tg.id)));
     const contactBlock = !isCv && (ct.formVisible !== false || wa || email);
 
+    const secHTML = (s) => {
+          const items = s.items.filter((i) => i.visible !== false);
+          const fn = R[s.type] || R.pages;
+          const body = items.map((i) => fn(i, s, c)).join("");
+          return `<section class="section sec-${esc(s.type)}" id="sec-${esc(s.id)}" data-section-block="${esc(s.id)}"><div class="wrap">
+            <div class="section-head"><h2>${esc(loc(s.title))}</h2>
+              <button class="btn btn-icon btn-small no-print" data-act="copy-link" data-id="sec-${esc(s.id)}" title="${esc(t("copyLink"))}" aria-label="${esc(t("copyLink"))}">${ICON.link}</button></div>
+            ${s.type === "future" ? `<p class="note">${esc(t("planNote"))}</p>` : ""}
+            ${s.type === "experience" ? `<div class="timeline">${body}</div>` : `<div class="grid grid-${esc(s.type)}">${body}</div>`}
+          </div></section>`;
+        };
+    const sitesFirst = secs.filter((x) => x.type === "platforms");
+    const restSecs = secs.filter((x) => x.type !== "platforms");
+
     root.innerHTML = `
       <a class="skip" href="#main">${t("skip")}</a>
       ${opts.preview ? `<div class="preview-bar" role="status">${esc(t("preview"))} <a class="btn btn-small" href="#/admin">${esc(t("backToAdmin"))}</a></div>` : ""}
@@ -299,6 +313,8 @@
 
 `}
 
+        ${sitesFirst.map(secHTML).join("")}
+
         <section class="toolbar wrap no-print" aria-label="filters">
           <input type="search" id="q" placeholder="${esc(t("search"))}" aria-label="${esc(t("search"))}">
           <select id="f-section" aria-label="${esc(t("f_section"))}"><option value="">${esc(t("f_section"))}</option>
@@ -310,17 +326,7 @@
         </section>
         <p class="wrap no-results" id="no-results" hidden>${esc(t("noResults"))}</p>
 
-        ${secs.map((s) => {
-          const items = s.items.filter((i) => i.visible !== false);
-          const fn = R[s.type] || R.pages;
-          const body = items.map((i) => fn(i, s, c)).join("");
-          return `<section class="section sec-${esc(s.type)}" id="sec-${esc(s.id)}" data-section-block="${esc(s.id)}"><div class="wrap">
-            <div class="section-head"><h2>${esc(loc(s.title))}</h2>
-              <button class="btn btn-icon btn-small no-print" data-act="copy-link" data-id="sec-${esc(s.id)}" title="${esc(t("copyLink"))}" aria-label="${esc(t("copyLink"))}">${ICON.link}</button></div>
-            ${s.type === "future" ? `<p class="note">${esc(t("planNote"))}</p>` : ""}
-            ${s.type === "experience" ? `<div class="timeline">${body}</div>` : `<div class="grid grid-${esc(s.type)}">${body}</div>`}
-          </div></section>`;
-        }).join("")}
+        ${restSecs.map(secHTML).join("")}
 
         ${contactBlock ? `<section class="section wrap contact" id="sec-contact">
           <div class="section-head"><h2>${esc(t("contactTitle"))}</h2>

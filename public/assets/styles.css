@@ -413,3 +413,25 @@ pre { background: #0f1b2e; color: #cfe1ff; padding: .8rem; border-radius: 8px; o
 .back-link svg { width: 18px; height: 18px; }
 
 @media print { .cv-hero { padding: 0 0 .8rem; } .cv-hero h1 { color: var(--navy); } .back-link { display: none; } }
+
+/* Home page leads with the sites band: tighter hero so the sites sit near the top */
+.hero { padding-top: 2.4rem; }
+.portrait { width: min(240px, 100%); }
+.busbar { margin-top: 2rem; }
+.section.sec-platforms { margin-top: 0; }
+@media screen {
+  .hero:not(.cv-hero) { padding-top: 1.4rem; }
+  .hero:not(.cv-hero) .hero-in { grid-template-columns: minmax(0, 1fr) auto; gap: 1.5rem; }
+  .hero:not(.cv-hero) h1 { font-size: clamp(1.9rem, 4.4vw, 2.9rem); }
+  .hero:not(.cv-hero) .bio, .hero:not(.cv-hero) .eyebrow { display: none; }
+  .hero:not(.cv-hero) .hero-actions { margin-top: .9rem; }
+  .hero:not(.cv-hero) .portrait { width: 132px; }
+  .hero:not(.cv-hero) .hero-side { grid-template-columns: auto; }
+  .hero:not(.cv-hero) .sites-link { display: none; }
+  .hero:not(.cv-hero) .busbar { margin-top: 1.3rem; padding-bottom: .8rem; }
+  .hero:not(.cv-hero) .busbar .stat { padding-top: 2.5rem; }
+  .hero:not(.cv-hero) .busbar .stat::before { height: 2rem; }
+  .hero:not(.cv-hero) .brk { top: .5rem; }
+  .hero:not(.cv-hero) .busbar .stat strong { font-size: clamp(1.8rem, 4vw, 2.4rem); }
+  .hero:not(.cv-hero) .stat-note { display: none; }
+}
