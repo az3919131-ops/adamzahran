@@ -207,6 +207,12 @@
         ${lInput("bio", pr.bio, "النبذة المهنية", true, 6)}
         ${fieldHTML({ key: "photo", kind: "image", label: "الصورة الشخصية (اختياري)" }, pr.photo)}
         ${fieldHTML({ key: "cvUrl", kind: "url", label: "رابط السيرة الذاتية (يظهر كزر في أعلى الصفحة)" }, pr.cvUrl)}
+        <fieldset class="tags-pick stats-edit"><legend>أرقام الواجهة</legend>
+          <p class="muted small">اكتب الرقم الذي تريد عرضه، أو اترك الخانة فارغة ليُحسب تلقائيًا من البيانات. ألغِ «إظهار» لإخفاء الرقم.</p>
+          ${[["years", "سنوات الخبرة"], ["projects", "المشاريع"], ["courses", "الدورات"], ["platforms", "المنصات"]].map(([k, l]) => `<div class="grid-2">
+            <label>${l}<input name="st_${k}" value="${esc(S.content.stats?.[k]?.value || "")}" dir="ltr" maxlength="8" placeholder="تلقائي"></label>
+            <label class="switch inline"><input type="checkbox" name="st_${k}_v" ${S.content.stats?.[k]?.show !== false ? "checked" : ""}><span>إظهار</span></label></div>`).join("")}
+        </fieldset>
       </form>`;
     const f = p.querySelector("#f-profile");
     bindUploads(f);
@@ -214,6 +220,7 @@
       for (const k of ["name", "title", "location", "experienceSummary", "bio"]) pr[k] = { ar: f[`${k}.ar`].value, en: f[`${k}.en`].value };
       pr.photo = f.photo.value.trim();
       pr.cvUrl = f.cvUrl.value.trim();
+      S.content.stats = Object.fromEntries(["years", "projects", "courses", "platforms"].map((k) => [k, { show: f[`st_${k}_v`].checked, value: f[`st_${k}`].value.trim() }]));
       changed(false);
     });
   }

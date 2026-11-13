@@ -201,18 +201,25 @@
   ];
 
   window.SEED = {
-    version: 3,
+    version: 4,
+    // Hero numbers. Empty value = calculated from the data; show:false hides the number.
+    stats: {
+      years: { show: true, value: "15" },
+      projects: { show: true, value: "40" },
+      courses: { show: false, value: "" },
+      platforms: { show: true, value: "5" },
+    },
     profile: {
       name: L("م. أحمد زهران", "Eng. Ahmed Zahran"),
       title: L("مدير مشاريع ومهندس قوى كهربائية", "Project Manager & Electrical Power Engineer"),
       location: L("نجران، المملكة العربية السعودية", "Najran, Saudi Arabia"),
       experienceSummary: L(
-        "أكثر من 12 عامًا في البنية التحتية الكهربائية، وتوزيع الطاقة، وتنفيذ وإدارة المشاريع.",
-        "12+ years in electrical infrastructure, power distribution, and project execution and management."
+        "أكثر من 15 عامًا في البنية التحتية الكهربائية، وتوزيع الطاقة، وتنفيذ وإدارة المشاريع.",
+        "15+ years in electrical infrastructure, power distribution, and project execution and management."
       ),
       bio: L(
-        "مدير مشاريع ومهندس قوى كهربائية ذو خبرة تتجاوز 12 عامًا في تنفيذ مشاريع البنية التحتية والتوزيع الكهربائي، وإدارة العقود والميزانيات والمقاولين والاستشاريين، مع خبرة في اختبار وصيانة شبكات الجهد المتوسط والمنخفض والمحولات، وتحليل البيانات وإعداد التقارير الإدارية والفنية، وتصميم منصات ويب تخدم العمل الهندسي والمجتمع.",
-        "Project manager and electrical power engineer with more than 12 years of experience delivering electrical infrastructure and distribution projects and managing contracts, budgets, contractors and consultants, with hands-on experience testing and maintaining medium- and low-voltage networks and transformers, analyzing data and preparing management and technical reports, and building web platforms that serve engineering work and the community."
+        "مدير مشاريع ومهندس قوى كهربائية ذو خبرة تتجاوز 15 عامًا في تنفيذ مشاريع البنية التحتية والتوزيع الكهربائي، وإدارة العقود والميزانيات والمقاولين والاستشاريين، مع خبرة في اختبار وصيانة شبكات الجهد المتوسط والمنخفض والمحولات، وتحليل البيانات وإعداد التقارير الإدارية والفنية، وتصميم منصات ويب تخدم العمل الهندسي والمجتمع.",
+        "Project manager and electrical power engineer with more than 15 years of experience delivering electrical infrastructure and distribution projects and managing contracts, budgets, contractors and consultants, with hands-on experience testing and maintaining medium- and low-voltage networks and transformers, analyzing data and preparing management and technical reports, and building web platforms that serve engineering work and the community."
       ),
       photo: "https://ahmedzahran12.netlify.app/ahmed.jpg",
       cvUrl: "https://ahmedzahran12.netlify.app/",

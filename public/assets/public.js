@@ -186,12 +186,13 @@
     const exp = vis("experience");
     const starts = exp.map((e) => yearOf(e.start)).filter(Boolean);
     const years = starts.length ? new Date().getFullYear() - Math.min(...starts) : 0;
-    return [
-      { k: "stat_years", v: years, show: starts.length > 0 },
-      { k: "stat_projects", v: vis("projects").length, show: true },
-      { k: "stat_courses", v: vis("courses").length, show: true },
-      { k: "stat_platforms", v: vis("platforms").filter((i) => !i.cta).length, show: true },
-    ].filter((x) => x.show && x.v > 0);
+    const auto = { years: starts.length ? years : 0, projects: vis("projects").length, courses: vis("courses").length, platforms: vis("platforms").filter((i) => !i.cta).length };
+    const cfg = c.stats || {};
+    return ["years", "projects", "courses", "platforms"].map((k) => {
+      const o = cfg[k] || {};
+      const manual = String(o.value ?? "").trim();
+      return { k: "stat_" + k, v: manual || auto[k], auto: auto[k], manual: !!manual, show: o.show !== false };
+    }).filter((x) => x.show && (x.manual || x.v > 0));
   }
 
   function render(root, c, opts = {}) {
@@ -271,9 +272,9 @@
           ${stats.length ? `<div class="busbar wrap" aria-label="stats">
             <div class="bus" aria-hidden="true"></div>
             <div class="feeders">
-              ${stats.map((s) => `<div class="stat"><i class="brk" aria-hidden="true"></i><strong>${s.v}</strong><span>${esc(t(s.k))}</span></div>`).join("")}
+              ${stats.map((s) => `<div class="stat"><i class="brk" aria-hidden="true"></i><strong>${esc(s.v)}</strong><span>${esc(t(s.k))}</span></div>`).join("")}
             </div>
-            <p class="stat-note">${esc(t("stat_note"))}</p></div>` : ""}
+            ${stats.every((x) => !x.manual) ? `<p class="stat-note">${esc(t("stat_note"))}</p>` : ""}</div>` : ""}
         </section>
 
         <section class="toolbar wrap no-print" aria-label="filters">

@@ -62,9 +62,10 @@ await test("public page renders name, title, bio and footer line", async () => {
   assert((await page.textContent(".hero .role")).includes("مدير مشاريع"), "title");
   assert((await page.textContent(".site-footer")).includes("Project Manager | Eng. Ahmed Zahran"), "footer");
 });
-await test("stats are computed from data (years/projects/courses/platforms)", async () => {
-  const s = await page.$$eval(".stat strong", (els) => els.map((e) => +e.textContent));
-  assert(s[0] === new Date().getFullYear() - 2013 && s[1] === 4 && s[2] === 9 && s[3] === 2, "stats " + s.join(","));
+await test("hero numbers: owner-set values shown (15 years, 40 projects, 5 platforms), courses hidden", async () => {
+  const s = await page.$$eval(".busbar .stat", (els) => els.map((e) => e.querySelector("strong").textContent + ":" + e.querySelector("span").textContent));
+  assert(s.join() === "15:سنوات الخبرة,40:المشاريع,5:المنصات", "stats " + s.join());
+  assert((await page.textContent(".hero .summary")).includes("15 عامًا"), "summary text says 15");
 });
 await test("empty sections (insurance, my pages) and hidden future items are not shown", async () => {
   assert(!(await page.$("#sec-insurance")) && !(await page.$("#sec-pages")) && !(await page.$("#sec-future")), "should be hidden");
@@ -225,6 +226,18 @@ await test("future-additions item shows publicly only when enabled, with its sta
   await publicPage();
   const txt = await page.textContent("#sec-future");
   assert(txt.includes("شهادة إدارة المشاريع PMP") && txt.includes("مخطط"), "future item w/ status");
+});
+await test("hero numbers editable in admin: blank value falls back to the calculated count", async () => {
+  await login();
+  await page.click("[data-tab=profile]");
+  await page.fill("#f-profile [name=st_projects]", "");
+  await page.check("#f-profile [name=st_courses_v]");
+  await page.waitForTimeout(600);
+  await page.goto(B + "#/preview"); await page.waitForSelector(".preview-bar");
+  const s = await page.$$eval(".busbar .stat", (els) => els.map((e) => e.querySelector("span").textContent + "=" + e.querySelector("strong").textContent));
+  assert(s.includes("المشاريع=4") && s.some((x) => x.startsWith("الدورات=")), "auto fallback " + s.join());
+  await login();
+  await page.click("[data-a=discard-draft]");
 });
 await test("webhook: not configured → configured → failed test → successful test", async () => {
   await login();

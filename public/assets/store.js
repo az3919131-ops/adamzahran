@@ -37,6 +37,16 @@
       if (!out.profile.cvUrl) out.profile.cvUrl = seed.profile.cvUrl;
       out.version = 3;
     }
+    if ((out.version || 1) < 4) {
+      const fix = (v) => (typeof v === "string" ? v.replace("12 عامًا", "15 عامًا").replace("12+ years", "15+ years").replace("more than 12 years", "more than 15 years") : v);
+      for (const k of ["experienceSummary", "bio"]) {
+        const f = out.profile[k];
+        if (f && typeof f === "object") out.profile[k] = { ar: fix(f.ar), en: fix(f.en) };
+      }
+      out.stats = clone(seed.stats);
+      out.version = 4;
+    }
+    out.stats = { ...seed.stats, ...(out.stats || {}) };
     out.sections.forEach((s) => { s.items = Array.isArray(s.items) ? s.items : []; if (s.visible === undefined) s.visible = true; });
     return out;
   }
