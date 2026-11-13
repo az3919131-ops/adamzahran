@@ -227,10 +227,7 @@
     const photo = safeUrl(c.profile.photo);
     const sitesSec = secs.find((x) => x.type === "platforms");
 
-    const allItems = secs.flatMap((s) => s.items.filter((i) => i.visible !== false).map((i) => ({ i, s })));
     const years = [...new Set(allItems.flatMap(({ i }) => itemYears(i)))].sort((a, b) => b - a);
-    const statuses = [...new Set(allItems.map(({ i, s }) => itemStatus(i, s)).filter(Boolean))];
-    const usedTags = c.tags.filter((tg) => allItems.some(({ i }) => (i.tags || []).includes(tg.id)));
     const contactBlock = !isCv && (ct.formVisible !== false || wa || email);
 
     const secHTML = (s) => {
@@ -315,16 +312,6 @@
 
         ${sitesFirst.map(secHTML).join("")}
 
-        <section class="toolbar wrap no-print" aria-label="filters">
-          <input type="search" id="q" placeholder="${esc(t("search"))}" aria-label="${esc(t("search"))}">
-          <select id="f-section" aria-label="${esc(t("f_section"))}"><option value="">${esc(t("f_section"))}</option>
-            ${secs.map((s) => `<option value="${esc(s.id)}">${esc(loc(s.title))}</option>`).join("")}</select>
-          <select id="f-year" aria-label="${esc(t("f_year"))}"><option value="">${esc(t("f_year"))}</option>${years.map((y) => `<option>${y}</option>`).join("")}</select>
-          <select id="f-status" aria-label="${esc(t("f_status"))}"><option value="">${esc(t("f_status"))}</option>${statuses.map((st) => `<option value="${esc(st)}">${esc(t("status_" + st))}</option>`).join("")}</select>
-          <select id="f-tag" aria-label="${esc(t("f_tag"))}"><option value="">${esc(t("f_tag"))}</option>${usedTags.map((tg) => `<option value="${esc(tg.id)}">${esc(lang === "en" ? tg.en || tg.ar : tg.ar)}</option>`).join("")}</select>
-          <button class="btn btn-small" id="f-clear">${esc(t("clearFilters"))}</button>
-        </section>
-        <p class="wrap no-results" id="no-results" hidden>${esc(t("noResults"))}</p>
 
         ${restSecs.map(secHTML).join("")}
 

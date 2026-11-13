@@ -119,26 +119,11 @@ await test("old shared link /#sec-experience opens the CV page", async () => {
   assert(await page.isVisible("#sec-experience"), "lands on the experience section");
   await page.goto(B + "#/"); await page.waitForSelector(".hero .portrait");
 });
-await test("CV page: search + filters (text, year, clear)", async () => {
+await test("search and filter bar is removed from the home and CV pages", async () => {
+  assert(!(await page.$("#q")) && !(await page.$(".toolbar")), "home has no filter bar");
   await page.goto(B + "#/cv"); await page.waitForSelector(".cv-hero");
-  await page.fill("#q", "SCADA");
-  let vis = await page.$$eval("[data-filter-item]:not([hidden])", (e) => e.length);
-  assert(vis === 2, "SCADA matches skills+course, got " + vis);
-  await page.fill("#q", "");
-  await page.selectOption("#f-year", "2013");
-  vis = await page.$$eval("[data-filter-item]:not([hidden])", (e) => e.length);
-  assert(vis === 1, "year 2013 → 1 experience, got " + vis);
-  await page.click("#f-clear");
-  await page.fill("#q", "zzzz-nothing");
-  assert(await page.isVisible("#no-results"), "no results message");
-  await page.click("#f-clear");
+  assert(!(await page.$("#q")) && !(await page.$(".toolbar")), "CV page has no filter bar");
   await page.goto(B + "#/"); await page.waitForSelector(".hero .portrait");
-});
-await test("home page: search + filters (tag, clear)", async () => {
-  await page.selectOption("#f-tag", "edu");
-  const vis = await page.$$eval("[data-filter-item]:not([hidden])", (e) => e.length);
-  assert(vis === 1, "tag edu → 1, got " + vis);
-  await page.click("#f-clear");
 });
 await test("language switch AR ⇄ EN (dir + content)", async () => {
   await page.click("[data-act=lang]");
