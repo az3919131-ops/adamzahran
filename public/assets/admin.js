@@ -202,9 +202,11 @@
       <form class="form" id="f-profile">
         ${lInput("name", pr.name, "الاسم المعروض", false, 0, true)}
         ${lInput("title", pr.title, "المسمى المهني")}
+        ${lInput("headline", pr.headline, "العنوان الرئيسي في أعلى الصفحة")}
         ${lInput("location", pr.location, "الموقع")}
         ${lInput("experienceSummary", pr.experienceSummary, "ملخص الخبرة", true, 2)}
-        ${lInput("bio", pr.bio, "النبذة المهنية", true, 6)}
+        ${lInput("bio", pr.bio, "النص الداعم تحت العنوان الرئيسي", true, 4)}
+        ${lInput("about", pr.about, "نبذة «عني» (فقرة في كل سطرين)", true, 9)}
         ${fieldHTML({ key: "photo", kind: "image", label: "الصورة الشخصية (اختياري)" }, pr.photo)}
         ${fieldHTML({ key: "cvUrl", kind: "url", label: "رابط السيرة الذاتية (يظهر كزر في أعلى الصفحة)" }, pr.cvUrl)}
         <fieldset class="tags-pick stats-edit"><legend>أرقام الواجهة</legend>
@@ -217,7 +219,7 @@
     const f = p.querySelector("#f-profile");
     bindUploads(f);
     f.addEventListener("input", () => {
-      for (const k of ["name", "title", "location", "experienceSummary", "bio"]) pr[k] = { ar: f[`${k}.ar`].value, en: f[`${k}.en`].value };
+      for (const k of ["name", "title", "headline", "location", "experienceSummary", "bio", "about"]) pr[k] = { ar: f[`${k}.ar`].value, en: f[`${k}.en`].value };
       pr.photo = f.photo.value.trim();
       pr.cvUrl = f.cvUrl.value.trim();
       S.content.stats = Object.fromEntries(["years", "projects", "courses", "platforms"].map((k) => [k, { show: f[`st_${k}_v`].checked, value: f[`st_${k}`].value.trim() }]));

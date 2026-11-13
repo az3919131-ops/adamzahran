@@ -17,6 +17,7 @@
     file: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M6 2h8l4 4v16H6z M14 2v4h4"/></svg>',
     globe: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Zm-9 9h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>',
     home: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M3 11l9-8 9 8 M5 10v10h5v-6h4v6h5V10"/></svg>',
+    tri: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>',
     pin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" d="M12 21s7-6.3 7-12a7 7 0 0 0-14 0c0 5.7 7 12 7 12Z M12 11.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/></svg>',
   };
 
@@ -214,18 +215,16 @@
     const stats = computeStats(c);
     const cv = safeUrl(c.profile.cvUrl);
     const navLink = (x) => `<a href="#sec-${esc(x.id)}">${esc(loc(x.title))}</a>`;
-    let cvLinkDone = false;
-    const cvNavLink = () => `<a class="nav-cv" href="#/cv">${esc(t("navCv"))}</a>`;
+    const platSec = secs.find((x) => x.type === "platforms");
+    const svcSec = secs.find((x) => x.type === "services");
+    const hasPlatforms = !isCv && platSec && Home.realPlatforms(platSec).length > 0;
     const navHTML = isCv
       ? `<a href="#/">${esc(t("navHome"))}</a>` + secs.map(navLink).join("")
-      : allSecs.map((x) => {
-          if (!CV_TYPES.includes(x.type)) return navLink(x);
-          if (cvLinkDone) return "";
-          cvLinkDone = true;
-          return cvNavLink();
-        }).join("");
+      : `<a href="#top">${esc(t("navHome"))}</a>
+         ${hasPlatforms ? `<a href="#sec-${esc(platSec.id)}">${esc(t("navPlatforms"))}</a>` : ""}
+         ${svcSec ? `<a href="#services">${esc(t("navServices"))}</a>` : ""}
+         ${loc(c.profile.about) ? `<a href="#about">${esc(t("navAbout"))}</a>` : ""}`;
     const photo = safeUrl(c.profile.photo);
-    const sitesSec = secs.find((x) => x.type === "platforms");
 
     const contactBlock = !isCv && (ct.formVisible !== false || wa || email);
 
@@ -240,10 +239,12 @@
             ${s.type === "experience" ? `<div class="timeline">${body}</div>` : `<div class="grid grid-${esc(s.type)}">${body}</div>`}
           </div></section>`;
         };
-    const sitesFirst = secs.filter((x) => x.type === "platforms");
-    const restSecs = secs.filter((x) => x.type !== "platforms");
+    const restSecs = secs.filter((x) => x.type !== "platforms" && x.type !== "services");
+    const linkOf = (type) => { const sx = allSecs.find((x) => x.type === type); const it = sx && sx.items.find((i) => i.visible !== false && safeUrl(i.url)); return it ? { url: safeUrl(it.url), title: loc(it.title) } : null; };
+    const li = linkOf("linkedin"), yt = linkOf("youtube");
+    const startHref = contactBlock ? "#sec-contact" : wa || "#/";
 
-    root.innerHTML = `
+    root.innerHTML = `<div class="site ${isCv ? "site-cv" : "site-home"}">
       <a class="skip" href="#main">${t("skip")}</a>
       ${opts.preview ? `<div class="preview-bar" role="status">${esc(t("preview"))} <a class="btn btn-small" href="#/admin">${esc(t("backToAdmin"))}</a></div>` : ""}
       <header class="topbar">
@@ -253,11 +254,11 @@
           <nav id="mainnav" class="mainnav" aria-label="sections">
             ${navHTML}
             ${contactBlock ? `<a href="#sec-contact">${esc(t("nav_contact"))}</a>` : ""}
+            <button type="button" class="btn btn-small nav-lang" data-act="lang">${esc(t("langToggle"))}</button>
           </nav>
           <div class="top-actions">
-            <button class="btn btn-small" data-act="lang">${esc(t("langToggle"))}</button>
-            <button class="btn btn-small btn-icon" data-act="share" title="${esc(t("share"))}" aria-label="${esc(t("share"))}">${ICON.share}</button>
-            <button class="btn btn-small btn-icon" data-act="print" title="${esc(t("print"))}" aria-label="${esc(t("print"))}">${ICON.print}</button>
+            <button class="btn btn-small btn-lang" data-act="lang">${esc(t("langToggle"))}</button>
+            <a class="btn btn-small btn-start" href="${esc(startHref)}"${/^https?:/.test(startHref) ? ' target="_blank" rel="noopener noreferrer"' : ""}>${esc(t("startProject"))}</a>
           </div>
         </div>
       </header>
@@ -278,39 +279,13 @@
           </div>
         </section>
 
-` : `        <section class="hero" id="top">
-          <div class="hero-grid" aria-hidden="true"></div>
-          <div class="wrap hero-in">
-            <div class="hero-text">
-              <p class="eyebrow">${ICON.pin} ${esc(loc(c.profile.location))}</p>
-              <h1>${esc(loc(c.profile.name))}</h1>
-              <p class="role">${esc(loc(c.profile.title))}</p>
-              ${loc(c.profile.experienceSummary) ? `<p class="summary">${esc(loc(c.profile.experienceSummary))}</p>` : ""}
-              <p class="bio">${esc(loc(c.profile.bio))}</p>
-              <div class="hero-actions">
-                ${cv ? `<a class="btn btn-cv" href="${esc(cv)}" target="_blank" rel="noopener noreferrer">${ICON.file}<span>${esc(t("cv"))}</span></a>` : ""}
-                ${wa ? `<a class="btn btn-wa" href="${esc(wa)}" target="_blank" rel="noopener noreferrer">${ICON.wa}<span>${esc(t("whatsapp"))}</span></a>` : ""}
-                ${email ? `<a class="btn btn-gold" href="mailto:${esc(email)}">${ICON.mail}<span>${esc(t("emailMe"))}</span></a>
-                  <button class="btn btn-ghost-light" data-act="copy-email" data-email="${esc(email)}">${ICON.copy}<span>${esc(t("copyEmail"))}</span></button>` : ""}
-              </div>
-            </div>
-            ${photo || sitesSec ? `<div class="hero-side">
-              ${photo ? `<figure class="portrait"><img src="${esc(photo)}" alt="${esc(loc(c.profile.name))}"></figure>` : ""}
-              ${sitesSec ? `<a class="sites-link" href="#sec-${esc(sitesSec.id)}">${ICON.globe}<span>${esc(t("browseSites"))}</span></a>` : ""}
-            </div>` : ""}
-          </div>
-          ${stats.length ? `<div class="busbar wrap" aria-label="stats">
-            <div class="bus" aria-hidden="true"></div>
-            <div class="feeders">
-              ${stats.map((s) => `<div class="stat"><i class="brk" aria-hidden="true"></i><strong>${esc(s.v)}</strong><span>${esc(t(s.k))}</span></div>`).join("")}
-            </div>
-            ${stats.every((x) => !x.manual) ? `<p class="stat-note">${esc(t("stat_note"))}</p>` : ""}</div>` : ""}
-        </section>
-
+` : `
+        ${Home.hero(c, { stats, wa })}
+        ${hasPlatforms ? Home.platforms(platSec, c) : ""}
+        ${Home.services(svcSec, platSec, c, { wa })}
+        ${Home.about(c, hasCvPage)}
+        ${Home.process()}
 `}
-
-        ${sitesFirst.map(secHTML).join("")}
-
 
         ${restSecs.map(secHTML).join("")}
 
@@ -330,18 +305,30 @@
               <label>${esc(t("f_subject"))}<input name="subject" maxlength="200"></label>
               <label>${esc(t("f_message"))}<textarea name="message" required rows="5" maxlength="4000"></textarea></label>
               <input name="website" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
-              <button class="btn btn-primary" type="submit">${esc(t("send"))}</button>
+              <button class="btn btn-blue" type="submit">${esc(t("send"))}</button>
               <div class="form-result" id="form-result" role="status" aria-live="polite"></div>
             </form>` : ""}
           </div></section>` : ""}
       </main>
       <footer class="site-footer"><div class="wrap">
+        <nav class="foot-links no-print" aria-label="${esc(t("footLinks"))}">
+          ${hasCvPage ? `<a href="#/cv">${esc(t("navCv"))}</a>` : ""}
+          ${cv ? `<a href="${esc(cv)}" target="_blank" rel="noopener noreferrer">${esc(t("cvSite"))}</a>` : ""}
+          ${li ? `<a href="${esc(li.url)}" target="_blank" rel="noopener noreferrer">LinkedIn</a>` : ""}
+          ${yt ? `<a href="${esc(yt.url)}" target="_blank" rel="noopener noreferrer">YouTube</a>` : ""}
+          ${wa ? `<a href="${esc(wa)}" target="_blank" rel="noopener noreferrer">WhatsApp</a>` : ""}
+          ${email ? `<a href="mailto:${esc(email)}">${esc(email)}</a>` : ""}
+          <button type="button" class="linklike" data-act="share">${esc(t("share"))}</button>
+          <button type="button" class="linklike" data-act="print">${esc(t("print"))}</button>
+        </nav>
         <p class="sig">${esc(t("footer"))}</p>
         <p class="no-print"><a href="#/admin" class="muted-link">${esc(t("admin"))}</a></p>
-      </div></footer>`;
+      </div></footer>
+      <dialog id="pf-dlg" class="pf-dlg"></dialog>
+    </div>`;
 
     bind(root, c, { wa, email, page: opts.page });
-    loadEmbeds(root);
+    if (!isCv) Home.bind(root, c);
     const want = window.App.pendingScroll || (location.hash.startsWith("#sec-") ? location.hash.slice(1) : "");
     window.App.pendingScroll = null;
     if (want) {

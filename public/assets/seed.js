@@ -253,4 +253,5 @@
     tags: TAGS,
     sections,
   };
+  window.V9.apply(window.SEED);
 })();
