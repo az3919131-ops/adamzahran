@@ -83,3 +83,71 @@
   .cvx-hero h1 { color: #000 !important; background: none !important; }
   .cvx-proof b { color: #000 !important; background: none !important; }
 }
+
+/* "About" intro with a 3D content scene */
+.cvx-intro { position: relative; overflow: hidden; }
+.cvx-intro::before { content: ""; position: absolute; inset: -20% -10% auto auto; width: 60%; height: 120%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(77, 141, 255, .14), transparent 70%); }
+.cvx-intro-in { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: center; position: relative; }
+.cvx-intro-kicker { display: inline-block; margin: 0 0 .5rem; padding: .15rem .8rem; border-radius: 999px; font-size: .82rem; font-weight: 800; color: #0b1626; background: linear-gradient(135deg, #f0d9a8, #d4af6a); }
+.cvx-intro-text h2 { font-size: clamp(2rem, 5vw, 3rem); }
+.cvx-intro-text p { font-size: 1.05rem; line-height: 2; color: #dfe7f1; max-width: 62ch; }
+.cvx-intro-facts { list-style: none; margin: 1.3rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .55rem; }
+.cvx-intro-facts li { display: grid; gap: .1rem; padding: .55rem .9rem; border-radius: 12px; border: 1px solid rgba(212, 175, 106, .3); background: rgba(13, 28, 48, .7); }
+.cvx-intro-facts span { font-size: .75rem; color: var(--gold); font-weight: 700; }
+.cvx-intro-facts b { font-size: .9rem; color: #f4f7fb; }
+
+.ab3d { position: relative; }
+.ab3d-scene { --rx: 8deg; --ry: -12deg; position: relative; aspect-ratio: 1 / .92; transform-style: preserve-3d; perspective: 1100px;
+  transform: perspective(1100px) rotateX(var(--rx)) rotateY(var(--ry)); transition: transform .25s ease-out; }
+.ab3d-scene.is-idle { animation: ab3d-sway 9s ease-in-out infinite; }
+@keyframes ab3d-sway { 0%, 100% { transform: perspective(1100px) rotateX(8deg) rotateY(-14deg); } 50% { transform: perspective(1100px) rotateX(4deg) rotateY(14deg); } }
+.ab3d-ring { position: absolute; left: 50%; top: 50%; border-radius: 50%; border: 1.5px solid rgba(212, 175, 106, .45); transform-style: preserve-3d; pointer-events: none; }
+.ab3d-ring.r1 { width: 88%; aspect-ratio: 1; margin: -44% 0 0 -44%; transform: rotateX(72deg); animation: ab3d-spin 16s linear infinite; box-shadow: 0 0 30px rgba(212, 175, 106, .25); }
+.ab3d-ring.r2 { width: 66%; aspect-ratio: 1; margin: -33% 0 0 -33%; border-color: rgba(77, 141, 255, .5); transform: rotateX(72deg) rotateY(22deg); animation: ab3d-spin2 22s linear infinite reverse; }
+.ab3d-ring::after { content: ""; position: absolute; top: -5px; left: 50%; width: 10px; height: 10px; border-radius: 50%; background: #f0d9a8; box-shadow: 0 0 14px 4px rgba(240, 217, 168, .7); }
+.ab3d-ring.r2::after { background: #8db6ff; box-shadow: 0 0 14px 4px rgba(141, 182, 255, .7); }
+@keyframes ab3d-spin { to { transform: rotateX(72deg) rotateZ(360deg); } }
+@keyframes ab3d-spin2 { to { transform: rotateX(72deg) rotateY(22deg) rotateZ(360deg); } }
+.ab3d-core { position: absolute; left: 50%; top: 50%; width: 34%; aspect-ratio: 1; margin: -17% 0 0 -17%; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(77, 141, 255, .35), rgba(212, 175, 106, .12) 45%, transparent 70%); filter: blur(8px); transform: translateZ(-60px); }
+.ab3d-tile { position: absolute; left: var(--x); top: var(--y); width: var(--w, auto); transform-style: preserve-3d; text-decoration: none; color: #f4f7fb;
+  transform: translate(-50%, -50%) translateZ(var(--z)) rotateY(var(--ry)); }
+.ab3d-in { display: block; position: relative; border-radius: 14px; overflow: hidden; border: 1px solid rgba(212, 175, 106, .4);
+  background: linear-gradient(160deg, rgba(20, 40, 68, .95), rgba(8, 19, 34, .95)); box-shadow: 0 22px 50px rgba(0, 0, 0, .55);
+  animation: ab3d-float 6s ease-in-out infinite; animation-delay: var(--d); transition: box-shadow .25s, border-color .25s; }
+@keyframes ab3d-float { 0%, 100% { transform: translateY(0) translateZ(0); } 50% { transform: translateY(-12px) translateZ(18px); } }
+.ab3d-tile:hover .ab3d-in, .ab3d-tile:focus-visible .ab3d-in { border-color: var(--gold); box-shadow: 0 26px 60px rgba(0, 0, 0, .6), 0 0 34px rgba(212, 175, 106, .45); }
+.ab3d-tile:focus-visible { outline: none; }
+.ab3d-tile:focus-visible .ab3d-in { outline: 3px solid var(--gold); outline-offset: 3px; }
+.ab3d-in img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; object-fit: cover; object-position: top; }
+.t-doc .ab3d-in img { aspect-ratio: 4 / 3; background: #fff; }
+.ab3d-in b { position: absolute; inset-inline: 0; bottom: 0; padding: 1.1rem .7rem .5rem; font-size: .8rem; line-height: 1.4; background: linear-gradient(transparent, rgba(8, 19, 34, .95)); }
+.t-stat .ab3d-in { padding: .8rem 1.1rem; text-align: center; min-width: 96px; }
+.t-stat strong { display: block; font-size: clamp(1.6rem, 3.4vw, 2.3rem); line-height: 1.1; background: linear-gradient(135deg, #cfe0ff, #8db6ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.t-stat.t-gold strong { background-image: linear-gradient(135deg, #f0d9a8, #d4af6a); }
+.t-stat small { display: block; font-size: .78rem; color: #c9d4e3; white-space: nowrap; }
+.t-chip .ab3d-in { padding: .5rem 1.1rem; border-radius: 999px; font-weight: 800; white-space: nowrap; background: linear-gradient(135deg, rgba(212, 175, 106, .3), rgba(77, 141, 255, .25)); }
+.ab3d-hint { text-align: center; color: var(--muted); font-size: .85rem; margin: 2.4rem 0 0; }
+
+@media (max-width: 860px) {
+  .cvx-intro-in { grid-template-columns: 1fr; }
+  .ab3d { max-width: 520px; width: 100%; margin-inline: auto; }
+}
+@media (max-width: 480px) {
+  .ab3d-scene { width: 80%; margin-inline: auto; }
+  .ab3d-in b { font-size: .68rem; padding: .8rem .45rem .35rem; }
+  .t-stat .ab3d-in { padding: .5rem .7rem; min-width: 74px; }
+  .t-stat small { font-size: .66rem; }
+  .t-chip .ab3d-in { font-size: .8rem; padding: .35rem .8rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ab3d-scene, .ab3d-scene.is-idle { animation: none !important; transition: none; }
+  .ab3d-ring, .ab3d-in { animation: none !important; }
+}
+@media print {
+  .cvx-intro-in { display: block; }
+  .ab3d { display: none !important; }
+  .cvx-intro-text p, .cvx-intro-facts b { color: #000 !important; }
+  .cvx-intro-facts li { background: none !important; border-color: #999 !important; }
+}

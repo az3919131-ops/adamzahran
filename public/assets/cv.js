@@ -221,12 +221,50 @@
     </div></section>`;
   }
 
-  function about(c) {
+  // "About" opens the CV page: the bio beside a 3D scene of tiles that preview the page's content.
+  function about(c, ctx) {
     const text = loc(c.profile.cvAbout);
     if (!text) return "";
-    return `<section class="section cvx-about" id="about"><div class="wrap cvx-about-in">
-      <header class="head2"><h2>${esc(T("النبذة المهنية", "Professional summary"))}</h2></header>
-      ${para(text).map((p) => `<p>${esc(p)}</p>`).join("")}
+    const by = (type) => ctx.allSecs.find((s) => s.type === type);
+    const stats = PublicView.computeStats(c);
+    const sv = (k) => (stats.find((s) => s.k === k) || {}).v;
+    const certSec = by("certs");
+    const certItems = certSec ? certSec.items.filter((x) => x.visible !== false && previews(x).length) : [];
+    const docs = certItems.reduce((n, x) => n + previews(x).length, 0);
+    const plat = by("platforms");
+    const plats = plat ? Home.realPlatforms(plat).filter((x) => safeUrl(x.image)) : [];
+    const facts = lines(c.profile.cvFacts).map((l) => l.split("|").map((x) => x.trim())).filter((p) => p[1]);
+    const tile = (cls, href, pos, inner, label) =>
+      `<a class="ab3d-tile ${cls}" href="${href}" style="${pos}" aria-label="${esc(label)}"><span class="ab3d-in">${inner}</span></a>`;
+    const tiles = [];
+    if (plats[0]) tiles.push(tile("t-shot", "#sec-platforms", "--x:50%;--y:47%;--z:30px;--w:56%;--ry:0deg;--d:0s",
+      `<img src="${esc(plats[0].image)}" alt="" loading="lazy" width="640" height="400"><b>${esc(loc(plats[0].title))}</b>`, loc(plats[0].title)));
+    if (certItems[0]) tiles.push(tile("t-doc", "#sec-certs", "--x:17%;--y:24%;--z:95px;--w:34%;--ry:16deg;--d:-1.2s",
+      `<img src="${esc(previews(certItems[0])[0].thumb)}" alt="" loading="lazy" width="640" height="450"><b>${esc(T(`${docs} وثيقة أصلية`, `${docs} original documents`))}</b>`, T("الشهادات", "Certificates")));
+    if (sv("stat_years")) tiles.push(tile("t-stat t-gold", "#sec-experience", "--x:83%;--y:18%;--z:125px;--ry:-14deg;--d:-2.1s",
+      `<strong>+${esc(sv("stat_years"))}</strong><small>${esc(t("stat_years"))}</small>`, t("stat_years")));
+    if (sv("stat_projects")) tiles.push(tile("t-stat", "#sec-projects", "--x:85%;--y:76%;--z:80px;--ry:-18deg;--d:-3s",
+      `<strong>${esc(sv("stat_projects"))}</strong><small>${esc(t("stat_projects"))}</small>`, t("stat_projects")));
+    if (certItems[1]) tiles.push(tile("t-doc", "#sec-certs", "--x:19%;--y:77%;--z:115px;--w:31%;--ry:12deg;--d:-.6s",
+      `<img src="${esc(previews(certItems[1])[0].thumb)}" alt="" loading="lazy" width="640" height="450">`, T("الشهادات", "Certificates")));
+    if (plats[1]) tiles.push(tile("t-shot t-small", "#sec-platforms", "--x:52%;--y:9%;--z:60px;--w:30%;--ry:0deg;--d:-1.7s",
+      `<img src="${esc(plats[1].image)}" alt="" loading="lazy" width="640" height="400">`, loc(plats[1].title)));
+    tiles.push(tile("t-chip", "#sec-experience", "--x:50%;--y:91%;--z:150px;--ry:0deg;--d:-2.6s",
+      `<span>⚡ ${esc(T("33 / 13.8 ك.ف", "33 / 13.8 kV"))}</span>`, T("الخبرات", "Experience")));
+    return `<section class="section cvx-intro" id="about"><div class="wrap cvx-intro-in">
+      <div class="cvx-intro-text">
+        <p class="cvx-intro-kicker">${esc(T("نبذة مهنية", "Professional summary"))}</p>
+        <header class="head2"><h2>${esc(t("aboutTitle"))}</h2></header>
+        ${para(text).map((p) => `<p>${esc(p)}</p>`).join("")}
+        ${facts.length ? `<ul class="cvx-intro-facts">${facts.map(([k, v]) => `<li><span>${esc(k)}</span><b>${esc(v)}</b></li>`).join("")}</ul>` : ""}
+      </div>
+      <div class="ab3d" data-ab3d>
+        <div class="ab3d-scene" data-ab3d-scene>
+          <i class="ab3d-ring r1" aria-hidden="true"></i><i class="ab3d-ring r2" aria-hidden="true"></i><i class="ab3d-core" aria-hidden="true"></i>
+          ${tiles.join("")}
+        </div>
+        <p class="ab3d-hint">${esc(T("حرّك المؤشر لتدوير المشهد، واضغط أي بطاقة للانتقال إلى قسمها.", "Move the pointer to turn the scene, and press any card to jump to its section."))}</p>
+      </div>
     </div></section>`;
   }
 
@@ -270,6 +308,7 @@
         })
       : "";
     return `${hero(c, ctx)}
+      ${about(c, ctx)}
       ${CVFX.ribbons()}
       ${value(by("value"))}
       ${experience(by("experience"))}
@@ -277,7 +316,6 @@
       ${skills(by("skills"))}
       ${certs(by("certs"))}
       ${platHTML}
-      ${about(c)}
       ${contact(c, ctx)}
       <dialog id="cert-dlg" class="cert-dlg" aria-labelledby="cdlg-title"></dialog>`;
   }

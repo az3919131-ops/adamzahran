@@ -198,11 +198,14 @@ await test("services are separate from platforms: four services, CTA, design-pic
 });
 await test("about, process (five steps) and footer links", async () => {
   const about = await page.textContent("#about");
-  assert(about.includes("أنا المهندس أحمد زهران") && about.includes("خدمة هدف واضح"), "about text");
+  assert(about.includes("أنا المهندس أحمد زهران، مدير مشاريع في الكهرباء والبنية التحتية") && about.includes("يتخذ قراره أسرع"), "about text");
+  assert((await page.getAttribute("#about .btn-gold", "href")) === "#/cv", "the CV button opens this site's CV page");
+  assert(!(await page.$("#about a[href*='ahmedzahran12']")), "no link to the old external CV site");
   const steps = await page.$$eval("#process .steps5 h3", (h) => h.map((x) => x.textContent.trim()));
   assert(steps.join("|") === "فهم الاحتياج|تنظيم المحتوى|تصميم التجربة|التنفيذ والمراجعة|الإطلاق والمتابعة", steps.join("|"));
   const foot = await page.$$eval(".foot-links a", (as) => as.map((a) => a.getAttribute("href")));
-  for (const u of ["#/cv", "https://ahmedzahran12.netlify.app/", "https://www.linkedin.com/in/ahmed-zahran-8b7730340", "https://www.youtube.com/@Alphamedia-010", "mailto:az3919131@gmail.com"]) assert(foot.includes(u), "footer missing " + u);
+  assert(!foot.includes("https://ahmedzahran12.netlify.app/"), "old external CV link removed");
+  for (const u of ["#/cv", "https://www.linkedin.com/in/ahmed-zahran-8b7730340", "https://www.youtube.com/@Alphamedia-010", "mailto:az3919131@gmail.com"]) assert(foot.includes(u), "footer missing " + u);
   const ext = await page.$$eval("#sec-youtube .btn-primary, #sec-linkedin .btn-primary", (as) => as.map((a) => [a.target, a.rel]));
   assert(ext.length === 2 && ext.every(([t, r]) => t === "_blank" && r.includes("noopener")), "channel and LinkedIn open in a new tab");
 });
@@ -234,9 +237,9 @@ await test("CV hero: headline, roles, three buttons, portrait, 3D stage (WebGL, 
   assert((await page.$$eval(".cvx-hero-text *", (n) => n.filter((x) => x.tagName === "CANVAS" || x.tagName === "IMG").length)) === 0, "text is plain HTML, not inside images");
   console.log("  (3D stage mode: " + mode + ")");
 });
-await test("CV nav: الرئيسية — القيمة المضافة — الخبرات — المشاريع — الشهادات — المنصات — تواصل; anchors keep the page", async () => {
+await test("CV nav: الرئيسية — عني — القيمة المضافة — الخبرات — المشاريع — الشهادات — المنصات — تواصل; anchors keep the page", async () => {
   const nav = await page.$$eval("#mainnav > a", (as) => as.map((a) => a.textContent.trim() + "|" + a.getAttribute("href")));
-  assert(nav.join() === "الرئيسية|#/,القيمة المضافة|#sec-value,الخبرات|#sec-experience,المشاريع|#sec-projects,الشهادات|#sec-certs,المنصات|#sec-platforms,تواصل|#sec-contact", nav.join());
+  assert(nav.join() === "الرئيسية|#/,عني|#about,القيمة المضافة|#sec-value,الخبرات|#sec-experience,المشاريع|#sec-projects,الشهادات|#sec-certs,المنصات|#sec-platforms,تواصل|#sec-contact", nav.join());
   await page.click("#mainnav a[href='#sec-certs']");
   assert(await page.isVisible(".cvx-hero") || (await page.$(".cvx-hero")), "still the CV page");
   assert(await page.isVisible("#sec-certs h2"), "scrolled to certificates");
@@ -393,7 +396,7 @@ await test("CV platforms: contractors platform first, one-click visit link, deta
   await page.waitForSelector("#pf-dlg:not([open])", { state: "attached" });
 });
 await test("CV about + contact: approved text, both numbers, and the form fields", async () => {
-  assert((await page.textContent("#about")).includes("أنا المهندس أحمد زهران، مدير مشاريع متخصص في إدارة التنفيذ والتخطيط والمتابعة"), "about text");
+  assert((await page.textContent("#about")).includes("أتولى التخطيط والمتابعة من فتح أمر العمل حتى إغلاقه"), "about text");
   assert((await page.textContent("#sec-contact h2")).trim() === "لنتحدث عن احتياجات مشروعك وفريقك", "contact title");
   assert((await page.textContent("#sec-contact .head2")).includes("يسعدني مناقشة الدور ومتطلبات فريقك"), "contact text");
   const hrefs = await page.$$eval("#sec-contact a", (as) => as.map((a) => a.getAttribute("href")));
@@ -458,6 +461,32 @@ await test("CV reduced motion: timeline is fully lit, no tilt, content complete"
   assert((await page.$$(".fx-rv")).length === 0, "no hidden reveal states");
   assert((await page.$eval(".fx-track", (e) => getComputedStyle(e).animationName)) === "none", "ribbons are static");
   } finally { await page.emulateMedia({ reducedMotion: "no-preference" }); }
+});
+await test("CV «عني» comes first: bio, facts and a 3D scene whose cards open their sections", async () => {
+  await gotoCv();
+  const order = await page.$$eval("main > section, main > div > section", (e) => e.map((x) => x.id || x.className).slice(0, 3));
+  const first = await page.evaluate(() => { const h = document.querySelector(".cvx-hero"); let n = h.nextElementSibling; while (n && n.tagName !== "SECTION") n = n.nextElementSibling; return n && n.id; });
+  assert(first === "about", "about is the first section after the hero: " + first + " / " + order.join());
+  assert((await page.textContent("#about h2")).trim() === "عني", "title");
+  assert((await page.$$eval("#about .cvx-intro-facts li", (e) => e.length)) === 5, "five facts");
+  const tiles = await page.$$eval(".ab3d-tile", (e) => e.map((a) => a.getAttribute("href")));
+  assert(tiles.length === 7 && tiles.every((h) => /^#sec-/.test(h)), "tiles: " + tiles.join());
+  for (const h of new Set(tiles)) assert(await page.$(h), "tile target exists: " + h);
+  const imgs = await page.$$eval(".ab3d-tile img", (e) => e.map((i) => i.getAttribute("src")));
+  assert(imgs.length === 4 && imgs.every((s) => /^assets\/(certs|shots)\//.test(s)), "real images only: " + imgs.join());
+  assert((await page.$eval(".ab3d-scene", (e) => getComputedStyle(e).transformStyle)) === "preserve-3d", "3D scene");
+  assert((await page.$eval(".ab3d-scene", (e) => e.classList.contains("is-idle"))), "idle sway animation");
+  await page.emulateMedia({ media: "print" });
+  try { assert(!(await page.isVisible(".ab3d")) && (await page.isVisible("#about p")), "scene hidden in print, bio kept"); }
+  finally { await page.emulateMedia({ media: "screen" }); }
+});
+await test("content v13: old bio and the old external CV link are replaced; custom edits are kept", async () => {
+  const r = await page.evaluate(() => {
+    const old = { version: 12, profile: { cvUrl: "https://ahmedzahran12.netlify.app/", about: { ar: "أنا المهندس أحمد زهران، مصمم مواقع ومنصات رقمية ومدير تنفيذ وتخطيط", en: "x" }, cvAbout: { ar: "نص مخصص كتبه المالك", en: "custom" } }, sections: [] };
+    const out = window.V13.apply(JSON.parse(JSON.stringify(old)));
+    return [out.version, out.profile.cvUrl, out.profile.about.ar.startsWith("أنا المهندس أحمد زهران، مدير مشاريع في الكهرباء"), out.profile.cvAbout.ar];
+  });
+  assert(r[0] === 13 && r[1] === "" && r[2] && r[3] === "نص مخصص كتبه المالك", r.join(" | "));
 });
 await test("CV marketing: keyword ribbons and a 3D gallery of every scanned certificate", async () => {
   await gotoCv();

@@ -241,7 +241,7 @@
         "Project manager and electrical power engineer with more than 15 years of experience delivering electrical infrastructure and distribution projects and managing contracts, budgets, contractors and consultants, with hands-on experience testing and maintaining medium- and low-voltage networks and transformers, analyzing data and preparing management and technical reports, and building web platforms that serve engineering work and the community."
       ),
       photo: "https://ahmedzahran12.netlify.app/ahmed.jpg",
-      cvUrl: "https://ahmedzahran12.netlify.app/",
+      cvUrl: "",
     },
     contact: {
       name: { value: "م. أحمد زهران", visible: true },
@@ -256,4 +256,6 @@
   window.V9.apply(window.SEED);
   window.V10.apply(window.SEED);
   window.V10.docs(window.SEED);
+  window.V10.docs2(window.SEED);
+  window.V13.apply(window.SEED);
 })();

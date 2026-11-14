@@ -193,7 +193,7 @@
         ${text.split(/\n\s*\n/).map((p) => `<p>${esc(p.trim())}</p>`).join("")}
         <p class="about-meta">${ICON().pin}<span>${esc(loc(pr.location))}</span></p>
         <div class="about-actions">
-          ${hasCv ? `<a class="btn btn-line" href="#/cv">${ICON().file}<span>${esc(t("fullCv"))}</span></a>` : ""}
+          ${hasCv ? `<a class="btn btn-gold" href="#/cv">${ICON().file}<span>${esc(t("fullCv"))}</span></a>` : ""}
           ${cv ? `<a class="btn btn-line btn-cv" href="${esc(cv)}" target="_blank" rel="noopener noreferrer">${ICON().ext}<span>${esc(t("cvSite"))}</span></a>` : ""}
         </div></div>
     </div></section>`;

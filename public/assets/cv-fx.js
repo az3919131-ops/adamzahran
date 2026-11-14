@@ -104,7 +104,7 @@
   }
 
   function reveal(root) {
-    const els = [...root.querySelectorAll(".cvx-vcard, .cvx-job, .cvx-case, .cvx-cert, .cvx-sgroup, .head2, .cvx-strip li, .cvx-proof li, .pf")];
+    const els = [...root.querySelectorAll(".cvx-intro-text > *, .cvx-vcard, .cvx-job, .cvx-case, .cvx-cert, .cvx-sgroup, .head2, .cvx-strip li, .cvx-proof li, .pf")];
     if (reduced() || !("IntersectionObserver" in window)) return;
     els.forEach((el, i) => { el.classList.add("fx-rv"); el.style.setProperty("--d", `${(i % 4) * 70}ms`); });
     const io = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("fx-in"); io.unobserve(en.target); } }), { rootMargin: "0px 0px -8% 0px" });
@@ -145,9 +145,27 @@
     });
   }
 
+  // About scene: idle sway, then it follows the pointer while the pointer is over it.
+  function intro3d(root) {
+    const scene = root.querySelector("[data-ab3d-scene]");
+    if (!scene || reduced()) return;
+    scene.classList.add("is-idle");
+    if (!fine()) return;
+    const box = root.querySelector("[data-ab3d]");
+    on(box, "pointermove", (e) => {
+      const r = box.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width - 0.5, py = (e.clientY - r.top) / r.height - 0.5;
+      scene.classList.remove("is-idle");
+      scene.style.setProperty("--ry", `${(px * 34).toFixed(1)}deg`);
+      scene.style.setProperty("--rx", `${(8 - py * 22).toFixed(1)}deg`);
+    });
+    on(box, "pointerleave", () => { scene.style.removeProperty("--rx"); scene.style.removeProperty("--ry"); scene.classList.add("is-idle"); });
+  }
+
   function bind(root) {
     offs.forEach((f) => { try { f(); } catch {} });
     offs = [];
+    intro3d(root);
     bindGallery(root);
     reveal(root);
     countUp(root);

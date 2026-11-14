@@ -221,7 +221,7 @@
     const hasPlatforms = !isCv && platSec && Home.realPlatforms(platSec).length > 0;
     const TT = (ar, en) => (lang === "en" ? en : ar);
     const hasSec = (type) => allSecs.some((x) => x.type === type);
-    const cvNav = [["#/", "navHome", true], ["#sec-value", "cvNavValue", hasSec("value")], ["#sec-experience", "cvNavExp", hasSec("experience")],
+    const cvNav = [["#/", "navHome", true], ["#about", "navAbout", !!loc(c.profile.cvAbout)], ["#sec-value", "cvNavValue", hasSec("value")], ["#sec-experience", "cvNavExp", hasSec("experience")],
       ["#sec-projects", "cvNavProjects", hasSec("projects")], ["#sec-certs", "cvNavCerts", hasSec("certs")],
       ["#sec-platforms", "navPlatforms", hasSec("platforms") && Home.realPlatforms(allSecs.find((x) => x.type === "platforms")).length > 0], ["#sec-contact", "nav_contact", true]];
     const navHTML = isCv
