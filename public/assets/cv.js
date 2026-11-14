@@ -206,6 +206,7 @@
         <li><b>${items.filter((x) => previews(x).length).length}/${items.length}</b><span>${esc(T("شهادة مدعومة بصورة", "items backed by a scan"))}</span></li>
         <li><b>${tabs().length}</b><span>${esc(T("مسارات: إدارة وقوى وتحكم ومؤهلات", "tracks: management, power, control, qualifications"))}</span></li>
       </ul>
+      ${CVFX.gallery(items.filter((x) => previews(x).length).map((x) => ({ id: x.id, title: loc(x.title), thumb: previews(x)[0].thumb })))}
       <div class="cvx-cfilter no-print" data-cert-filter>
         <label class="cvx-search"><span class="sr-only">${esc(T("ابحث في الشهادات والمهارات", "Search certificates and skills"))}</span>
           <input type="search" data-cert-q placeholder="${esc(T("ابحث في الشهادات والمهارات…", "Search certificates and skills…"))}" autocomplete="off"></label>
@@ -269,6 +270,7 @@
         })
       : "";
     return `${hero(c, ctx)}
+      ${CVFX.ribbons()}
       ${value(by("value"))}
       ${experience(by("experience"))}
       ${projects(by("projects"))}
@@ -471,6 +473,7 @@
     tilt(root);
     certTools(root, c);
     Home.bind(root, c);
+    CVFX.bind(root);
   }
 
   window.CV = { main, bind };

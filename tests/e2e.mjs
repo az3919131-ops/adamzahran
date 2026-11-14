@@ -452,7 +452,40 @@ await test("CV reduced motion: timeline is fully lit, no tilt, content complete"
   await page.waitForTimeout(120);
   assert((await card.evaluate((e) => getComputedStyle(e).transform)) === "none", "no tilt transform");
   assert((await page.$$("[data-cert]")).length === 28, "all content present");
+  const a0 = await page.evaluate(() => window.__fxGallery.angle);
+  await page.waitForTimeout(400);
+  assert(a0 === (await page.evaluate(() => window.__fxGallery.angle)) && !(await page.evaluate(() => window.__fxGallery.auto)), "gallery does not auto-rotate");
+  assert((await page.$$(".fx-rv")).length === 0, "no hidden reveal states");
+  assert((await page.$eval(".fx-track", (e) => getComputedStyle(e).animationName)) === "none", "ribbons are static");
   } finally { await page.emulateMedia({ reducedMotion: "no-preference" }); }
+});
+await test("CV marketing: keyword ribbons and a 3D gallery of every scanned certificate", async () => {
+  await gotoCv();
+  const words = await page.$$eval(".fx-ribbons .fx-track:not([aria-hidden]) li", (e) => e.map((x) => x.textContent));
+  assert(words.length === 18 && words.includes("إدارة المشاريع") && words.includes("السلامة أولًا"), "keywords: " + words.length);
+  assert((await page.$$(".fx-ribbons .fx-track[aria-hidden=true]")).length === 2, "duplicate marquee tracks are hidden from screen readers");
+  const cards = await page.$$eval(".fx-card", (e) => e.map((c) => [c.dataset.certOpen, c.querySelector("img").getAttribute("src")]));
+  assert(cards.length === 24 && cards.every(([id, src]) => id && /^assets\/certs\/.+-thumb\.jpg$/.test(src)), "24 real scans in the ring");
+  assert((await page.$eval(".fx-ring", (e) => getComputedStyle(e).transformStyle)) === "preserve-3d", "3D ring");
+  await page.$eval("[data-fx-gal]", (e) => e.scrollIntoView({ block: "center", behavior: "instant" }));
+  const a0 = await page.evaluate(() => window.__fxGallery.angle);
+  await page.waitForTimeout(500);
+  assert((await page.evaluate(() => window.__fxGallery.angle)) !== a0, "auto-rotates");
+  await page.click("[data-fx-play]");
+  assert((await page.getAttribute("[data-fx-play]", "aria-pressed")) === "false", "pause toggles");
+  const front = await page.getAttribute(".fx-card.is-front", "data-fx-i");
+  await page.click("[data-fx-next]");
+  await page.waitForTimeout(700);
+  assert((await page.getAttribute(".fx-card.is-front", "data-fx-i")) !== front, "next moves the front card");
+  const id = await page.getAttribute(".fx-card.is-front", "data-cert-open");
+  await page.click(".fx-card.is-front");
+  await page.waitForFunction(() => document.querySelector("#cert-dlg").open);
+  assert((await page.$$eval("#cert-dlg img", (e) => e.length)) >= 1, "viewer opens the real scan for " + id);
+  await page.keyboard.press("Escape");
+  await page.emulateMedia({ media: "print" });
+  try {
+    assert(!(await page.isVisible("[data-fx-gal]")) && !(await page.isVisible(".fx-ribbons")), "effects hidden in print/ATS");
+  } finally { await page.emulateMedia({ media: "screen" }); }
 });
 await test("old shared link /#sec-experience opens the CV page", async () => {
   await page.goto("about:blank");

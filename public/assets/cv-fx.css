@@ -1,0 +1,85 @@
+/* CV page showcase effects. Project Manager | Eng. Ahmed Zahran */
+@property --fx-a { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+
+/* hero spotlight that follows the pointer */
+.cvx-hero::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: 0; transition: opacity .4s;
+  background: radial-gradient(520px circle at var(--mx, 70%) var(--my, 30%), rgba(77, 141, 255, .16), rgba(212, 175, 106, .07) 40%, transparent 65%); }
+.cvx-hero:hover::after { opacity: 1; }
+.cvx-hero h1 { background: linear-gradient(100deg, #f4f7fb 0%, #f4f7fb 40%, #f0d9a8 50%, #f4f7fb 60%, #f4f7fb 100%); background-size: 250% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent; animation: fx-shine 7s ease-in-out infinite; }
+@keyframes fx-shine { 0%, 60% { background-position: 100% 0; } 100% { background-position: -50% 0; } }
+.cvx-actions .btn { transition: transform .18s ease-out, background .2s, box-shadow .2s; }
+.cvx-actions .btn-gold { box-shadow: 0 10px 30px rgba(212, 175, 106, .28); }
+
+/* keyword ribbons */
+.fx-ribbons { padding: 1.4rem 0 .4rem; overflow: hidden; display: grid; gap: .7rem; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.fx-row { display: flex; width: max-content; }
+.fx-track { display: flex; gap: .7rem; margin: 0; padding: 0 .35rem; list-style: none; animation: fx-marquee 46s linear infinite; }
+.fx-b .fx-track { animation-direction: reverse; animation-duration: 52s; }
+.fx-ribbons:hover .fx-track { animation-play-state: paused; }
+.fx-track li { white-space: nowrap; padding: .45rem 1.1rem; border-radius: 999px; font-weight: 700; font-size: .95rem; color: #f4f7fb;
+  background: linear-gradient(135deg, rgba(77, 141, 255, .18), rgba(212, 175, 106, .14)); border: 1px solid rgba(212, 175, 106, .35); }
+.fx-a .fx-track li:nth-child(3n) { background: linear-gradient(135deg, rgba(212, 175, 106, .28), rgba(212, 175, 106, .1)); color: #f0d9a8; }
+.fx-b .fx-track li:nth-child(4n+1) { background: linear-gradient(135deg, rgba(77, 141, 255, .32), rgba(77, 141, 255, .1)); color: #cfe0ff; }
+@keyframes fx-marquee { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+[dir="rtl"] .fx-track { animation-name: fx-marquee-rtl; }
+@keyframes fx-marquee-rtl { from { transform: translateX(0); } to { transform: translateX(100%); } }
+
+/* 3D certificate gallery */
+.fx-gal { margin: .4rem 0 2.2rem; padding: 1.6rem 1rem 1.2rem; border-radius: 22px; position: relative; overflow: hidden;
+  background: radial-gradient(800px 300px at 50% 0%, rgba(77, 141, 255, .18), transparent 70%), linear-gradient(180deg, #0d1c30, #081322);
+  border: 1px solid rgba(212, 175, 106, .3); }
+.fx-gal-head { text-align: center; max-width: 60ch; margin: 0 auto 1rem; }
+.fx-gal-kicker { display: inline-block; margin: 0 0 .4rem; padding: .1rem .8rem; border-radius: 999px; background: linear-gradient(135deg, #f0d9a8, #d4af6a); color: #0b1626; font-weight: 800; font-size: .82rem; }
+.fx-gal-head h3 { font-size: clamp(1.3rem, 4vw, 1.9rem); margin: 0 0 .3rem; }
+.fx-gal-head p { margin: 0; color: var(--muted); }
+.fx-stage { --w: clamp(150px, 20vw, 220px); --r: max(calc(var(--n) * var(--w) * .172), calc(var(--w) * 1.3)); position: relative; height: clamp(240px, 24vw, 310px); perspective: calc(var(--r) * 2.2); perspective-origin: 50% 40%; cursor: grab; touch-action: pan-y; user-select: none; }
+.fx-stage:active { cursor: grabbing; }
+.fx-ring { position: absolute; left: 50%; top: 48%; width: 0; height: 0; transform-style: preserve-3d; transform: translateZ(calc(var(--r) * -1)); }
+.fx-ring.is-snap { transition: transform .6s cubic-bezier(.2, .8, .2, 1); }
+.fx-card { position: absolute; width: var(--w); aspect-ratio: 4 / 3; left: calc(var(--w) / -2); top: calc(var(--w) * -.375);
+  padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: #fff; cursor: pointer;
+  transform: rotateY(calc(360deg / var(--n) * var(--i))) translateZ(var(--r)); backface-visibility: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, .55), 0 0 0 1px rgba(212, 175, 106, .4); transition: box-shadow .3s, filter .3s; filter: brightness(.72) saturate(.85); }
+.fx-card img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; pointer-events: none; }
+.fx-cap { position: absolute; inset-inline: 0; bottom: 0; padding: .9rem .6rem .45rem; font-size: .78rem; font-weight: 700; color: #fff; line-height: 1.4;
+  background: linear-gradient(transparent, rgba(8, 19, 34, .92)); text-align: start; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.fx-card.is-front { filter: none; box-shadow: 0 26px 60px rgba(0, 0, 0, .6), 0 0 0 2px var(--gold), 0 0 40px rgba(212, 175, 106, .45); }
+.fx-card:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; filter: none; }
+.fx-floor { position: absolute; left: 10%; right: 10%; bottom: 0; height: 40px; background: radial-gradient(closest-side, rgba(77, 141, 255, .35), transparent); filter: blur(6px); }
+.fx-gal-ctrl { display: flex; justify-content: center; gap: .5rem; margin-top: .6rem; }
+.fx-gal-ctrl .btn { min-width: 46px; justify-content: center; }
+
+/* animated gradient border on certificate cards */
+.cvx-cert { position: relative; isolation: isolate; }
+.cvx-cert::before { content: ""; position: absolute; inset: -1px; z-index: -1; border-radius: inherit; padding: 1px; opacity: 0; transition: opacity .3s;
+  background: conic-gradient(from var(--fx-a), var(--gold), var(--blue), #9b7bff, var(--gold)); animation: fx-spin 4s linear infinite;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.cvx-cert:hover::before, .cvx-cert:focus-within::before { opacity: 1; }
+@keyframes fx-spin { to { --fx-a: 360deg; } }
+.cvx-thumb img { transform-origin: top center; }
+.cvx-cert:hover .cvx-thumb img { transform: scale(1.06) translateY(-2%); }
+
+/* scroll reveal */
+.fx-rv { opacity: 0; transform: translateY(26px) scale(.98); transition: opacity .7s ease var(--d, 0ms), transform .7s cubic-bezier(.2, .8, .2, 1) var(--d, 0ms); }
+.fx-rv.fx-in { opacity: 1; transform: none; }
+.fx-rv.tilt.fx-in { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); }
+
+/* proof numbers glow */
+.cvx-proof b { background: linear-gradient(135deg, #f0d9a8, #d4af6a 50%, #8db6ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+@media (max-width: 640px) {
+  .fx-stage { --w: 52vw; height: 270px; }
+  .fx-track li { font-size: .85rem; padding: .35rem .9rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx-track, .cvx-hero h1, .cvx-cert::before { animation: none !important; }
+  .cvx-hero h1 { color: #f4f7fb; background: none; }
+  .fx-rv { opacity: 1 !important; transform: none !important; }
+}
+@media print {
+  .fx-ribbons, .fx-gal { display: none !important; }
+  .fx-rv { opacity: 1 !important; transform: none !important; }
+  .cvx-hero h1 { color: #000 !important; background: none !important; }
+  .cvx-proof b { color: #000 !important; background: none !important; }
+}
