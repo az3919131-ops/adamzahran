@@ -117,6 +117,9 @@ body:has(.site) { background: #081322; }
 .intro .brk { background: var(--bg); border-color: var(--gold-2); }
 .intro .busbar .stat strong { font-family: var(--font); color: var(--text); }
 .intro .busbar .stat span { color: var(--muted); }
+/* number strip: figure and label share the body font at a medium size */
+.intro .busbar .stat strong { font-family: var(--font); font-size: 1.25rem; font-weight: 800; line-height: 1.5; }
+.intro .busbar .stat span { font-family: var(--font); font-size: 1.05rem; font-weight: 600; line-height: 1.6; margin-top: .1rem; }
 
 /* ---------- section heading ---------- */
 .head2 { margin-bottom: 1.6rem; max-width: 70ch; }

@@ -32,7 +32,7 @@
   const STATS = {
     years: { text: L("+15", "15+"), label: L("سنة خبرة في مصر والمملكة", "Years of experience in Egypt and Saudi Arabia") },
     projects: { text: L("عشرات", "Dozens"), label: L("المشاريع في المملكة ومصر", "Projects in Saudi Arabia and Egypt") },
-    platforms: { label: L("تصاميم ومواقع تخدم المقاول وفريق عمل المشروع", "Designs and websites that serve the contractor and the project team") },
+    platforms: { text: L("عدة", "Several"), label: L("تصاميم ومواقع تخدم المقاول وفريق عمل المشروع", "Designs and websites that serve the contractor and the project team") },
   };
   function stats14(c) {
     const st = c.stats || (c.stats = {});
@@ -45,5 +45,13 @@
     return c;
   }
 
-  window.V13 = { apply, stats14, BIO };
+  // v15: the third number reads "عدة" (already-saved v14 content had no text for it).
+  function stats15(c) {
+    const o = (c.stats || (c.stats = {})).platforms || (c.stats.platforms = { show: true, value: "" });
+    if (!(o.text && (o.text.ar || o.text.en))) o.text = { ...STATS.platforms.text };
+    c.version = 15;
+    return c;
+  }
+
+  window.V13 = { apply, stats14, stats15, BIO };
 })();

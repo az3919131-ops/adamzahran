@@ -74,7 +74,7 @@ await test("nav: الرئيسية — المنصات — خدماتي — عني
 });
 await test("number strip: the owner's wording (+15 / dozens / 5 designs) and the original portrait is used unchanged", async () => {
   const st = await page.$$eval(".busbar .stat", (els) => els.map((e) => e.querySelector("strong").textContent + ":" + e.querySelector("span").textContent));
-  assert(st.join() === "+15:سنة خبرة في مصر والمملكة,عشرات:المشاريع في المملكة ومصر,5:تصاميم ومواقع تخدم المقاول وفريق عمل المشروع", st.join());
+  assert(st.join() === "+15:سنة خبرة في مصر والمملكة,عشرات:المشاريع في المملكة ومصر,عدة:تصاميم ومواقع تخدم المقاول وفريق عمل المشروع", st.join());
   const img = await page.$eval(".st-portrait img", (i) => [i.getAttribute("src"), i.alt]);
   assert(img[0] === "https://ahmedzahran12.netlify.app/ahmed.jpg" && img[1] === "م. أحمد زهران", img.join());
 });
