@@ -227,7 +227,7 @@
     if (!text) return "";
     const by = (type) => ctx.allSecs.find((s) => s.type === type);
     const stats = PublicView.computeStats(c);
-    const sv = (k) => (stats.find((s) => s.k === k) || {}).v;
+    const sv = (k) => (stats.find((s) => s.k === k) || {}).n;
     const certSec = by("certs");
     const certItems = certSec ? certSec.items.filter((x) => x.visible !== false && previews(x).length) : [];
     const docs = certItems.reduce((n, x) => n + previews(x).length, 0);

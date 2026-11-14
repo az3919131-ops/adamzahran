@@ -194,7 +194,9 @@
     return ["years", "projects", "courses", "platforms"].map((k) => {
       const o = cfg[k] || {};
       const manual = String(o.value ?? "").trim();
-      return { k: "stat_" + k, v: manual || auto[k], auto: auto[k], manual: !!manual, show: o.show !== false };
+      const text = String(AZ.loc(o.text) || "").trim();
+      return { k: "stat_" + k, v: text || manual || auto[k], n: manual || auto[k], label: String(AZ.loc(o.label) || "").trim() || AZ.t("stat_" + k),
+        auto: auto[k], manual: !!(manual || text), show: o.show !== false };
     }).filter((x) => x.show && (x.manual || x.v > 0));
   }
 

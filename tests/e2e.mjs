@@ -72,9 +72,9 @@ await test("nav: الرئيسية — المنصات — خدماتي — عني
   const btns = await page.$$eval(".intro-actions a", (as) => as.map((a) => a.textContent.trim() + "|" + a.getAttribute("href")));
   assert(btns.join() === "استكشف المنصات|#sec-platforms,ناقش مشروعك معي|#sec-contact", btns.join());
 });
-await test("numbers are the owner's values (15, 40, 5) and the original portrait is used unchanged", async () => {
+await test("number strip: the owner's wording (+15 / dozens / 5 designs) and the original portrait is used unchanged", async () => {
   const st = await page.$$eval(".busbar .stat", (els) => els.map((e) => e.querySelector("strong").textContent + ":" + e.querySelector("span").textContent));
-  assert(st.join() === "15:سنوات الخبرة,40:المشاريع,5:المنصات", st.join());
+  assert(st.join() === "+15:سنة خبرة في مصر والمملكة,عشرات:المشاريع في المملكة ومصر,5:تصاميم ومواقع تخدم المقاول وفريق عمل المشروع", st.join());
   const img = await page.$eval(".st-portrait img", (i) => [i.getAttribute("src"), i.alt]);
   assert(img[0] === "https://ahmedzahran12.netlify.app/ahmed.jpg" && img[1] === "م. أحمد زهران", img.join());
 });
@@ -695,6 +695,10 @@ await test("hero numbers editable in admin: blank value falls back to the calcul
   await login();
   await page.click("[data-tab=profile]");
   await page.fill("#f-profile [name=st_projects]", "");
+  await page.fill("#f-profile [name=st_projects_tar]", "");
+  await page.fill("#f-profile [name=st_projects_lar]", "");
+  await page.fill("#f-profile [name=st_projects_ten]", "");
+  await page.fill("#f-profile [name=st_projects_len]", "");
   await page.check("#f-profile [name=st_courses_v]");
   await page.waitForTimeout(600);
   await page.goto(B + "#/preview"); await page.waitForSelector(".preview-bar");

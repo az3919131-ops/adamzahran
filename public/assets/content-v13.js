@@ -28,5 +28,22 @@
     return c;
   }
 
-  window.V13 = { apply, BIO };
+  // v14: the hero number strip reads as phrases (display text + label), editable in the admin panel.
+  const STATS = {
+    years: { text: L("+15", "15+"), label: L("سنة خبرة في مصر والمملكة", "Years of experience in Egypt and Saudi Arabia") },
+    projects: { text: L("عشرات", "Dozens"), label: L("المشاريع في المملكة ومصر", "Projects in Saudi Arabia and Egypt") },
+    platforms: { label: L("تصاميم ومواقع تخدم المقاول وفريق عمل المشروع", "Designs and websites that serve the contractor and the project team") },
+  };
+  function stats14(c) {
+    const st = c.stats || (c.stats = {});
+    for (const [k, v] of Object.entries(STATS)) {
+      const o = st[k] || (st[k] = { show: true, value: "" });
+      if (v.text && !(o.text && (o.text.ar || o.text.en))) o.text = { ...v.text };
+      if (!(o.label && (o.label.ar || o.label.en))) o.label = { ...v.label };
+    }
+    c.version = 14;
+    return c;
+  }
+
+  window.V13 = { apply, stats14, BIO };
 })();

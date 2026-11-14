@@ -108,7 +108,7 @@
       </div>
       ${stats.length ? `<div class="busbar wrap" aria-label="stats">
         <div class="bus" aria-hidden="true"></div>
-        <div class="feeders">${stats.map((s) => `<div class="stat"><i class="brk" aria-hidden="true"></i><strong>${esc(s.v)}</strong><span>${esc(t(s.k))}</span></div>`).join("")}</div>
+        <div class="feeders">${stats.map((s) => `<div class="stat"><i class="brk" aria-hidden="true"></i><strong>${esc(s.v)}</strong><span>${esc(s.label)}</span></div>`).join("")}</div>
         ${stats.every((x) => !x.manual) ? `<p class="stat-note">${esc(t("stat_note"))}</p>` : ""}</div>` : ""}
     </section>`;
   }
