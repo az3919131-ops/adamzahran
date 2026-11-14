@@ -148,7 +148,7 @@
               <button type="button" class="btn btn-blue" data-pf-open="${esc(it.id)}">${ICON().tri}<span>${esc(t("howItWorks"))}</span></button>
               ${opts.visit && safeUrl(it.url) ? `<a class="btn btn-gold" data-pf-visit href="${esc(safeUrl(it.url))}" target="_blank" rel="noopener noreferrer">${ICON().ext}<span>${esc(opts.visitLabel || "")}</span></a>` : ""}
               <button type="button" class="btn btn-line" data-pf-share="${esc(it.id)}">${ICON().share}<span>${esc(t("share"))}</span></button>
-              <button type="button" class="btn btn-line" data-pf-copy="${esc(it.id)}">${ICON().copy}<span>${esc(t("copyUrl"))}</span></button>
+              ${!opts.visit && safeUrl(it.url) ? `<a class="btn btn-gold" data-pf-direct href="${esc(safeUrl(it.url))}" target="_blank" rel="noopener noreferrer">${ICON().ext}<span>${esc(t("directLink"))}</span></a>` : ""}
             </div>
           </div>
         </article>`;
@@ -280,7 +280,6 @@
           ${url ? `<a class="btn btn-gold btn-big" data-pfm-enter href="${esc(url)}" target="_blank" rel="noopener noreferrer">${ICON().ext}<span>${esc(t("enter"))}</span><small>${esc(t("newTab"))}</small></a>` : ""}
           ${goalUrl && goalUrl !== url && loc(it.goalLabel) ? `<a class="btn btn-blue" data-pfm-goal href="${esc(goalUrl)}" target="_blank" rel="noopener noreferrer">${esc(loc(it.goalLabel))}</a>` : ""}
           ${join && loc(it.joinLabel) ? `<a class="btn btn-line" data-pfm-join href="${esc(join)}" target="_blank" rel="noopener noreferrer">${esc(loc(it.joinLabel))}</a>` : ""}
-          <button type="button" class="btn btn-line" data-pf-copy="${esc(it.id)}">${ICON().copy}<span>${esc(t("copyUrl"))}</span></button>
         </div>
       </footer>
     </form>`;

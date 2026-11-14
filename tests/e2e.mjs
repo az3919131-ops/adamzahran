@@ -102,8 +102,9 @@ await test("accuracy notes: prototype + design-only role for the real estate sit
   const all = await page.textContent("#main");
   assert(!all.includes("تقييم العملاء") && !all.includes("قالوا عنا"), "no testimonials or ratings");
 });
-await test("step one: the platform row has no direct external link; «شاهد كيف تعمل» opens the details dialog", async () => {
-  assert((await page.$$("#sec-platforms .pf a[target=_blank]")).length === 0, "rows must not link out directly");
+await test("step one: each platform row links out only through its direct-entry button; «شاهد كيف تعمل» opens the details dialog", async () => {
+  const outs = await page.$$eval("#sec-platforms .pf a[target=_blank]", (as) => as.map((a) => a.hasAttribute("data-pf-direct")));
+  assert(outs.length === 5 && outs.every(Boolean), "one direct link per row, nothing else links out");
   await page.click("#sec-platforms .pf >> nth=0 >> [data-pf-open]");
   await page.waitForSelector("#pf-dlg[open]");
   const txt = await page.textContent("#pf-dlg");
@@ -170,11 +171,11 @@ await test("each platform has its own call to action and correct links", async (
     await page.waitForSelector("#pf-dlg:not([open])", { state: "attached" });
   }
 });
-await test("copy platform link shows a clear success message and copies the right URL", async () => {
-  await page.click("#sec-platforms .pf >> nth=3 >> [data-pf-copy]");
-  await page.waitForSelector("#toast.show");
-  assert((await page.textContent("#toast")).trim() === "تم نسخ رابط المنصة", "toast");
-  assert((await page.evaluate(() => navigator.clipboard.readText())) === "https://mujassid-prompt-studio.netlify.app/", "clipboard");
+await test("each platform card has a direct link into the platform (no copy-link buttons left)", async () => {
+  const links = await page.$$eval("#sec-platforms .pf [data-pf-direct]", (as) => as.map((a) => [a.getAttribute("href"), a.target, a.rel, a.textContent.trim()]));
+  assert(links.length === 5 && links.every((l) => /^https:\/\/[a-z0-9-]+\.netlify\.app\/?$/.test(l[0]) && l[1] === "_blank" && l[2].includes("noopener") && l[3] === "ادخل المنصة مباشرة"), JSON.stringify(links));
+  assert(links.some((l) => l[0] === "https://mujassid-prompt-studio.netlify.app/"), "prompt studio link");
+  assert((await page.$$("[data-pf-copy]")).length === 0, "no copy-link buttons");
   assert((await page.$$("#sec-platforms .pf [data-pf-share]")).length === 5, "share buttons");
 });
 await test("reduced motion: the demo does not auto-play and all content stays readable", async () => {
@@ -389,6 +390,7 @@ await test("CV platforms: contractors platform first, one-click visit link, deta
   assert((await page.textContent("#sec-platforms h2")).trim() === "من خبرة العمل إلى حلول رقمية", "section title");
   const visit = await page.$$eval("#sec-platforms [data-pf-visit]", (as) => as.map((a) => [a.href, a.target, a.textContent.trim()]));
   assert(visit.length === 5 && visit.every((v) => v[1] === "_blank" && v[2] === "زيارة المنصة") && visit[0][0] === "https://iltizam-najran.netlify.app/", JSON.stringify(visit));
+  assert((await page.$$("#sec-platforms [data-pf-copy], #sec-platforms [data-pf-direct]")).length === 0, "one direct link per card on the CV page");
   await page.click("#sec-platforms .pf >> nth=0 >> [data-pf-open]");
   await page.waitForSelector("#pf-dlg[open]");
   assert((await page.textContent("#pfm-title")).includes("التزام"), "dialog opens");
