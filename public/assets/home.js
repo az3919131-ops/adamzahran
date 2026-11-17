@@ -60,6 +60,17 @@
       `<g class="bob">` + box(30, 0, 18, 48, 4, 32, PAPER) + `<circle cx="${P(42, 0, 38)[0]}" cy="${P(42, 0, 38)[1]}" r="6" fill="#27405f"/>` + poly([P(52, 0, 42), P(72, 0, 42), P(72, 0, 38), P(52, 0, 38)], "#081322") + poly([P(52, 0, 34), P(66, 0, 34), P(66, 0, 31), P(52, 0, 31)], "#b8934f") + `</g>` +
       `<g class="ping"><circle cx="${P(70, 40, 60)[0]}" cy="${P(70, 40, 60)[1]}" r="13" fill="#d4af6a"/><path d="M ${+P(70, 40, 60)[0] - 5} ${+P(70, 40, 60)[1] + 3} q5 -14 10 0 z" fill="#081322"/><circle cx="${P(70, 40, 60)[0]}" cy="${+P(70, 40, 60)[1] + 5}" r="1.8" fill="#081322"/></g>` +
       `<path class="flow" d="M ${P(54, 2, 30).join(" ")} L ${P(68, 36, 52).join(" ")}" fill="none" stroke="#4d8dff" stroke-width="2" stroke-dasharray="4 5"/>`),
+    // warehouse racks + material boxes + a pallet moving + a synced system panel
+    stock: () => svg(
+      ground(160) +
+      [-62, -30].map((x) => box(x, -46, 0, 26, 14, 4, STEEL) + box(x, -46, 22, 26, 14, 3, STEEL) + box(x, -46, 44, 26, 14, 3, STEEL) +
+        box(x, -46, 0, 2, 14, 62, STEEL) + box(x + 24, -46, 0, 2, 14, 62, STEEL) +
+        box(x + 4, -44, 4, 9, 10, 10, GOLD) + box(x + 14, -44, 4, 8, 10, 8, BLUE) + box(x + 4, -44, 25, 16, 10, 9, PAPER) + box(x + 5, -44, 47, 10, 10, 9, GOLD)).join("") +
+      `<g class="bob">` + box(-40, 14, 0, 26, 20, 4, STEEL) + box(-37, 17, 4, 10, 14, 12, GOLD) + box(-25, 17, 4, 9, 14, 9, BLUE) + `</g>` +
+      box(26, 2, 0, 10, 10, 30, STEEL) + `<g class="bob">` + box(18, 4, 30, 58, 4, 40, PAPER) + poly([P(22, 4, 66), P(72, 4, 66), P(72, 4, 60), P(22, 4, 60)], "#714b67") +
+      [0, 1, 2].map((i) => poly([P(24, 4, 54 - i * 8), P(70 - i * 8, 4, 54 - i * 8), P(70 - i * 8, 4, 51 - i * 8), P(24, 4, 51 - i * 8)], i === 0 ? "#b8934f" : "#27405f")).join("") + `</g>` +
+      `<path class="flow" d="M ${P(-14, 24, 14).join(" ")} L ${P(22, 6, 40).join(" ")}" fill="none" stroke="#4d8dff" stroke-width="2" stroke-dasharray="5 6"/>` +
+      `<g class="ping"><circle cx="${P(76, 40, 54)[0]}" cy="${P(76, 40, 54)[1]}" r="12" fill="#d4af6a"/><path d="M ${+P(76, 40, 54)[0] - 5} ${P(76, 40, 54)[1]} l3.5 4 l6.5 -8" fill="none" stroke="#081322" stroke-width="2.4"/></g>`),
     generic: () => svg(ground(150) + box(-45, -35, 0, 80, 60, 6, STEEL) + `<g class="bob">` + box(-35, -25, 24, 70, 50, 5, BLUE) + box(-25, -15, 48, 60, 40, 5, GOLD) + `</g>`),
   };
   const scene = (k) => (SCENES[k] || SCENES.generic)();
@@ -130,7 +141,7 @@
           <div class="pf-visual" data-anim>
             <div class="pf-world">
               <div class="pf-screen"><div class="chrome"><i></i><i></i><i></i><span dir="ltr">${esc(hostLabel(it.url))}</span></div>
-                ${shot ? `<img src="${esc(shot)}" alt="${esc(t("shotOf"))} ${esc(loc(it.title))}" loading="lazy" width="960" height="600">` : `<div class="pf-noshot" aria-hidden="true"></div>`}</div>
+                ${shot ? `<img src="${esc(shot)}" alt="${esc(t(it.imageIllustrative ? "illusOf" : "shotOf"))} ${esc(loc(it.title))}" loading="lazy" width="960" height="600">` : `<div class="pf-noshot" aria-hidden="true"></div>`}</div>
               <div class="pf-obj">${scene(it.scene)}</div>
             </div>
           </div>
@@ -232,6 +243,11 @@
       `<div class="m-login"><div class="m-input">${T("البريد الإلكتروني", "Email")}</div><div class="m-input">••••••••</div><span class="m-btn">${T("دخول", "Sign in")}</span></div>`,
       `<div class="m-visitor"><b></b><div>${rows(3)}</div><span class="m-btn">${T("تسجيل الزائر", "Register visitor")}</span></div>`,
       `<div class="m-notify"><div class="m-bell"></div><div class="m-bubble">${T("زائر عند البوابة", "A visitor is at the gate")}</div></div>`,
+    ],
+    stock: () => [
+      `<div class="m-login"><div class="m-input">${T("اسم المستخدم", "Username")}</div><div class="m-input">••••••••</div><span class="m-btn">${T("دخول", "Sign in")}</span></div>`,
+      `<div class="m-cards">${[T("مستودع المشروع", "Project store"), T("مستودع الموقع", "Site store"), T("المرتجعات", "Returns")].map((x, i) => `<div class="m-card ${i === 0 ? "pick" : ""}" style="--i:${i}"><b></b><span>${x}</span></div>`).join("")}</div>`,
+      `<div class="m-table"><div class="m-th"><span>${T("المادة", "Material")}</span><span>${T("الرصيد", "Balance")}</span></div>${[T("متوفر", "In stock"), T("منخفض", "Low"), T("متوفر", "In stock")].map((x, i) => `<div class="m-tr" style="--i:${i}"><i></i><span class="m-chip c${i === 1 ? 1 : 2}">${x}</span></div>`).join("")}</div>`,
     ],
     generic: () => [1, 2, 3].map((n) => `<div class="m-doc">${rows(3 + n)}</div>`),
   };

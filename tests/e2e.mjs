@@ -81,16 +81,16 @@ await test("number strip: the owner's wording (+15 / dozens / 5 designs) and the
 await test("empty sections (insurance, my pages) and hidden future items are not shown", async () => {
   assert(!(await page.$("#sec-insurance")) && !(await page.$("#sec-pages")) && !(await page.$("#sec-future")), "should be hidden");
 });
-await test("platforms: five rows with name, status, audience, problem, three benefits and a real screenshot", async () => {
+await test("platforms: six rows with name, status, audience, problem, three benefits and a screenshot (or a labelled illustration)", async () => {
   assert((await page.textContent("#sec-platforms h2")).trim() === "منصات صممتها لتخدم احتياجات حقيقية", "section title");
   const rows = await page.$$eval("#sec-platforms .pf", (ps) => ps.map((p) => ({
     title: p.querySelector("h3").textContent.trim(), status: !!p.querySelector(".pf-top .badge"), facts: p.querySelectorAll(".pf-facts dd").length,
     benefits: p.querySelectorAll(".pf-benefits li").length, shot: p.querySelector(".pf-screen img")?.getAttribute("src") || "", alt: p.querySelector(".pf-screen img")?.alt || "", svg: !!p.querySelector(".pf-obj svg"),
   })));
-  assert(rows.map((r) => r.title).join("|") === "التزام للتدريب|التزام لإدارة أوامر العمل ومشاريع الكهرباء|نور فيو مدينتي|مجسّد|بوابة الأمن", rows.map((r) => r.title).join("|"));
-  assert(rows.every((r) => r.status && r.facts === 2 && r.benefits === 3 && r.shot.startsWith("assets/shots/") && r.alt.includes("لقطة من واجهة") && r.svg), JSON.stringify(rows));
+  assert(rows.map((r) => r.title).join("|") === "التزام للتدريب|التزام لإدارة أوامر العمل ومشاريع الكهرباء|منصة المواد والمستودعات (أودو)|نور فيو مدينتي|مجسّد|بوابة الأمن", rows.map((r) => r.title).join("|"));
+  assert(rows.every((r) => r.status && r.facts === 2 && r.benefits === 3 && r.shot.startsWith("assets/shots/") && r.svg && (r.title.includes("أودو") ? r.alt.includes("رسم توضيحي") : r.alt.includes("لقطة من واجهة"))), JSON.stringify(rows));
   const idx = await page.$$eval(".pf-index a", (as) => as.length);
-  assert(idx === 5, "summary index has 5 links");
+  assert(idx === 6, "summary index has 6 links");
   const loaded = await page.$eval("#sec-platforms .pf-screen img", async (i) => { i.loading = "eager"; await i.decode().catch(() => {}); return i.naturalWidth; });
   assert(loaded === 960, "screenshot file loads, width " + loaded);
 });
@@ -104,7 +104,7 @@ await test("accuracy notes: prototype + design-only role for the real estate sit
 });
 await test("step one: each platform row links out only through its direct-entry button; «شاهد كيف تعمل» opens the details dialog", async () => {
   const outs = await page.$$eval("#sec-platforms .pf a[target=_blank]", (as) => as.map((a) => a.hasAttribute("data-pf-direct")));
-  assert(outs.length === 5 && outs.every(Boolean), "one direct link per row, nothing else links out");
+  assert(outs.length === 6 && outs.every(Boolean), "one direct link per row, nothing else links out");
   await page.click("#sec-platforms .pf >> nth=0 >> [data-pf-open]");
   await page.waitForSelector("#pf-dlg[open]");
   const txt = await page.textContent("#pf-dlg");
@@ -153,6 +153,7 @@ await test("dialog: Escape closes it, the demo stops, and focus returns to the b
 await test("each platform has its own call to action and correct links", async () => {
   const want = [
     ["التزام لإدارة أوامر العمل ومشاريع الكهرباء", "https://iltizam-najran.netlify.app/", "اطلب عرضًا تجريبيًا", "https://iltizam-najran.netlify.app/#contact"],
+    ["منصة المواد والمستودعات (أودو)", "https://alwabrn-inventory.onrender.com/odoo/action-alwabrn_warehouse.action_explorer", "افتح مستكشف المستودعات", null],
     ["نور فيو مدينتي", "https://nourmadinty.netlify.app/", "استكشف العقارات", null],
     ["مجسّد", "https://mujassid-prompt-studio.netlify.app/", "حوّل فكرتك إلى برومبت", null],
     ["بوابة الأمن", "https://securitynmwabran.netlify.app/", "استفسر عن الخدمة", "https://wa.me/966565324387?text="],
@@ -173,10 +174,10 @@ await test("each platform has its own call to action and correct links", async (
 });
 await test("each platform card has a direct link into the platform (no copy-link buttons left)", async () => {
   const links = await page.$$eval("#sec-platforms .pf [data-pf-direct]", (as) => as.map((a) => [a.getAttribute("href"), a.target, a.rel, a.textContent.trim()]));
-  assert(links.length === 5 && links.every((l) => /^https:\/\/[a-z0-9-]+\.netlify\.app\/?$/.test(l[0]) && l[1] === "_blank" && l[2].includes("noopener") && l[3] === "ادخل المنصة مباشرة"), JSON.stringify(links));
+  assert(links.length === 6 && links.every((l) => /^https:\/\/[a-z0-9-]+\.(netlify\.app|onrender\.com)(\/|$)/.test(l[0]) && l[1] === "_blank" && l[2].includes("noopener") && l[3] === "ادخل المنصة مباشرة"), JSON.stringify(links));
   assert(links.some((l) => l[0] === "https://mujassid-prompt-studio.netlify.app/"), "prompt studio link");
   assert((await page.$$("[data-pf-copy]")).length === 0, "no copy-link buttons");
-  assert((await page.$$("#sec-platforms .pf [data-pf-share]")).length === 5, "share buttons");
+  assert((await page.$$("#sec-platforms .pf [data-pf-share]")).length === 6, "share buttons");
 });
 await test("reduced motion: the demo does not auto-play and all content stays readable", async () => {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -386,10 +387,10 @@ await test("privacy: no ID / iqama numbers, birth date or military remarks in th
 });
 await test("CV platforms: contractors platform first, one-click visit link, details dialog still works", async () => {
   const titles = await page.$$eval("#sec-platforms .pf h3", (h) => h.map((x) => x.textContent.trim()));
-  assert(titles.join("|") === "التزام لإدارة أوامر العمل ومشاريع الكهرباء|التزام للتدريب|مجسّد|نور فيو مدينتي|بوابة الأمن", titles.join("|"));
+  assert(titles.join("|") === "التزام لإدارة أوامر العمل ومشاريع الكهرباء|منصة المواد والمستودعات (أودو)|التزام للتدريب|مجسّد|نور فيو مدينتي|بوابة الأمن", titles.join("|"));
   assert((await page.textContent("#sec-platforms h2")).trim() === "من خبرة العمل إلى حلول رقمية", "section title");
   const visit = await page.$$eval("#sec-platforms [data-pf-visit]", (as) => as.map((a) => [a.href, a.target, a.textContent.trim()]));
-  assert(visit.length === 5 && visit.every((v) => v[1] === "_blank" && v[2] === "زيارة المنصة") && visit[0][0] === "https://iltizam-najran.netlify.app/", JSON.stringify(visit));
+  assert(visit.length === 6 && visit.every((v) => v[1] === "_blank" && v[2] === "زيارة المنصة") && visit[0][0] === "https://iltizam-najran.netlify.app/", JSON.stringify(visit));
   assert((await page.$$("#sec-platforms [data-pf-copy], #sec-platforms [data-pf-direct]")).length === 0, "one direct link per card on the CV page");
   await page.click("#sec-platforms .pf >> nth=0 >> [data-pf-open]");
   await page.waitForSelector("#pf-dlg[open]");

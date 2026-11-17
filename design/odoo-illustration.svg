@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600" viewBox="0 0 960 600" font-family="Tahoma, Arial, sans-serif">
+  <!-- Illustrative drawing of a warehouse explorer screen (not a screenshot). Project Manager | Eng. Ahmed Zahran -->
+  <rect width="960" height="600" fill="#f4f5f7"/>
+  <rect width="960" height="56" fill="#714b67"/>
+  <text x="930" y="36" fill="#fff" font-size="22" font-weight="700" text-anchor="end">المخزون</text>
+  <text x="790" y="36" fill="#e9dbe6" font-size="17" text-anchor="end">مستكشف المستودعات</text>
+  <text x="30" y="36" fill="#e9dbe6" font-size="18" font-weight="700">odoo</text>
+  <rect x="740" y="76" width="200" height="504" rx="10" fill="#fff" stroke="#e1e4e8"/>
+  <text x="920" y="112" fill="#714b67" font-size="17" font-weight="700" text-anchor="end">المستودعات</text>
+  <g font-size="15" fill="#33415c" text-anchor="end">
+    <rect x="752" y="130" width="176" height="38" rx="8" fill="#f1e9ef"/>
+    <text x="912" y="155" font-weight="700" fill="#714b67">مستودع المشروع</text>
+    <text x="912" y="200">مستودع الموقع</text>
+    <text x="912" y="242">مواد مرتجعة</text>
+    <text x="912" y="284">مواد تحت الفحص</text>
+  </g>
+  <rect x="20" y="76" width="700" height="62" rx="10" fill="#fff" stroke="#e1e4e8"/>
+  <g font-size="15" text-anchor="middle">
+    <rect x="520" y="90" width="180" height="34" rx="17" fill="#714b67"/><text x="610" y="112" fill="#fff" font-weight="700">الأرصدة</text>
+    <rect x="330" y="90" width="170" height="34" rx="17" fill="#eef0f3"/><text x="415" y="112" fill="#33415c">الاستلام</text>
+    <rect x="140" y="90" width="170" height="34" rx="17" fill="#eef0f3"/><text x="225" y="112" fill="#33415c">الصرف والتحويل</text>
+  </g>
+  <rect x="20" y="152" width="700" height="428" rx="10" fill="#fff" stroke="#e1e4e8"/>
+  <g font-size="15" text-anchor="end">
+    <rect x="20" y="152" width="700" height="46" rx="10" fill="#f7f8fa"/>
+    <text x="700" y="181" fill="#6b7a90" font-weight="700">المادة</text>
+    <text x="430" y="181" fill="#6b7a90" font-weight="700">الموقع</text>
+    <text x="250" y="181" fill="#6b7a90" font-weight="700">الرصيد</text>
+    <text x="120" y="181" fill="#6b7a90" font-weight="700">الحالة</text>
+  </g>
+  <g font-size="15" fill="#1f2a3d" text-anchor="end">
+    <g><line x1="36" x2="704" y1="246" y2="246" stroke="#eef0f3"/><rect x="560" y="214" width="140" height="12" rx="6" fill="#c9d1dc"/><rect x="300" y="214" width="130" height="12" rx="6" fill="#dfe4ea"/><rect x="190" y="214" width="60" height="12" rx="6" fill="#c9d1dc"/><rect x="40" y="208" width="80" height="24" rx="12" fill="#dff3e6"/><text x="110" y="226" fill="#1e7a46" font-size="13">متوفر</text></g>
+    <g><line x1="36" x2="704" y1="296" y2="296" stroke="#eef0f3"/><rect x="590" y="264" width="110" height="12" rx="6" fill="#c9d1dc"/><rect x="320" y="264" width="110" height="12" rx="6" fill="#dfe4ea"/><rect x="200" y="264" width="50" height="12" rx="6" fill="#c9d1dc"/><rect x="40" y="258" width="80" height="24" rx="12" fill="#fff1d6"/><text x="110" y="276" fill="#9a6400" font-size="13">منخفض</text></g>
+    <g><line x1="36" x2="704" y1="346" y2="346" stroke="#eef0f3"/><rect x="540" y="314" width="160" height="12" rx="6" fill="#c9d1dc"/><rect x="290" y="314" width="140" height="12" rx="6" fill="#dfe4ea"/><rect x="180" y="314" width="70" height="12" rx="6" fill="#c9d1dc"/><rect x="40" y="308" width="80" height="24" rx="12" fill="#dff3e6"/><text x="110" y="326" fill="#1e7a46" font-size="13">متوفر</text></g>
+    <g><line x1="36" x2="704" y1="396" y2="396" stroke="#eef0f3"/><rect x="580" y="364" width="120" height="12" rx="6" fill="#c9d1dc"/><rect x="330" y="364" width="100" height="12" rx="6" fill="#dfe4ea"/><rect x="210" y="364" width="40" height="12" rx="6" fill="#c9d1dc"/><rect x="40" y="358" width="80" height="24" rx="12" fill="#e4ecff"/><text x="110" y="376" fill="#2c5bd1" font-size="13">محجوز</text></g>
+    <g><line x1="36" x2="704" y1="446" y2="446" stroke="#eef0f3"/><rect x="560" y="414" width="140" height="12" rx="6" fill="#c9d1dc"/><rect x="310" y="414" width="120" height="12" rx="6" fill="#dfe4ea"/><rect x="195" y="414" width="55" height="12" rx="6" fill="#c9d1dc"/><rect x="40" y="408" width="80" height="24" rx="12" fill="#dff3e6"/><text x="110" y="426" fill="#1e7a46" font-size="13">متوفر</text></g>
+  </g>
+  <rect x="40" y="478" width="300" height="80" rx="10" fill="#f8f3f7" stroke="#e7d9e3"/>
+  <text x="320" y="508" fill="#714b67" font-size="15" font-weight="700" text-anchor="end">مطابقة مع نظام شركة الكهرباء</text>
+  <rect x="60" y="526" width="260" height="10" rx="5" fill="#e7d9e3"/><rect x="100" y="526" width="220" height="10" rx="5" fill="#714b67"/>
+  <text x="704" y="560" fill="#9aa5b5" font-size="14" text-anchor="end">رسم توضيحي للواجهة</text>
+</svg>

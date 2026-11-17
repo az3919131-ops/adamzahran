@@ -260,4 +260,5 @@
   window.V13.apply(window.SEED);
   window.V13.stats14(window.SEED);
   window.V13.stats15(window.SEED);
+  window.V16.apply(window.SEED);
 })();

@@ -301,7 +301,7 @@
     const plat = by("platforms");
     const platHTML = plat && Home.realPlatforms(plat).length
       ? Home.platforms(plat, c, {
-          order: ["iltizam-najran.netlify.app", "iltizam-training.netlify.app", "mujassid-prompt-studio.netlify.app", "nourmadinty.netlify.app", "securitynmwabran.netlify.app"],
+          order: ["iltizam-najran.netlify.app", "alwabrn-inventory.onrender.com", "iltizam-training.netlify.app", "mujassid-prompt-studio.netlify.app", "nourmadinty.netlify.app", "securitynmwabran.netlify.app"],
           title: T("من خبرة العمل إلى حلول رقمية", "From work experience to digital solutions"),
           sub: T("منصات بنيتها انطلاقًا من احتياجات العمل الفعلية. اضغط «شاهد كيف تعمل» لترى رحلة الاستخدام قبل الدخول.", "Platforms I built from real work needs. Press \"See how it works\" to view the user journey before you enter."),
           visit: true, visitLabel: T("زيارة المنصة", "Visit the platform"),
